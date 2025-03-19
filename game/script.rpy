@@ -1,5 +1,5 @@
 ﻿define l = Character("Lex Machina")
-define s = Character(name=("Nina"), image="nina")
+define s = Character(name=("Steve"), image="steve")
 define j = Character("Judge")
 
 default player_fname = "" 
@@ -108,10 +108,10 @@ label setupScene1:
     $ unintelligible_count = 0
     $ mentioned_truths = set()  
 
-    show nina normal3
-    s "Welcome to the courtroom. My name is |Supervisor|, and I'll be guiding you through your preparation before you deliver expert testimony!"
+    show steve_normal
+    s "Welcome to the courtroom. My name is Steve, and I'll be guiding you through your preparation before you deliver expert testimony!"
     s "Would you like me to go through the tutorial? Or should we get straight to case selection?"
-    hide nina normal3
+    hide steve_normal2
 
     menu:
         s "Would you like me to go through the tutorial? Or should we get straight to case selection?"
@@ -122,9 +122,9 @@ label setupScene1:
             jump case_selection_menu
 
 label tutorial_start:
-    show nina normal1
+    show steve_normal
     s "Don't worry, this is not a real court, and there currently are no stakes involved. It is simply a training simulation intended to help you practice!"
-    show nina normal2
+    show steve_normal2
     s "Let's start by selecting your case. Each one will present different forensic challenges, so read through the case details carefully before making your choice."
     jump case_selection_menu
 
@@ -140,11 +140,13 @@ label case_selection_menu:
 
 label tutorial_specialty:
     scene bg spec
-    show nina normal3
+    show steve_happy
     s "Perfect! Now, let's choose your forensic specialty."
-    show nina normal2
+    hide steve_happy
+    show steve_normal2
     s "As an expert witness, your role is to analyze and present evidence within your area of expertise. Your selection will determine the type of evidence you'll be responsible for in court."
-    show nina thinknote1
+    hide steve_normal2
+    show steve_paper
     s "Because this is just a mock scenario, you will only have to testify for two pieces of evidence. Please look through the evidence carefully!"
     jump specialty_menu
 
@@ -178,27 +180,35 @@ label specialty_exploration:
 label tutorial_lex_diff:
     scene bg spec
     show screen inventory_button
-    show nina normal3
+    show steve_happy
     show screen darken_background
+    #### Add arrow###
     s "Great choice! On the top left corner, you'll see the evidence button. If you want to view all your evidence, click on it!"
     s "If you want more information about a particular piece of evidence, press on the info button when hovering over one."
     hide screen darken_background
     s "Now, there's just one more thing before you step into court."
-    show nina normal2
+    hide steve_happy
+    show steve_normal2
     s "Inside the courtroom, you'll be examined by Lex Machina, a mock trial lawyer."
-    show nina write1
+    hide steve_normal2
+    show steve_normal
     s "Depending on your selection, Lex will take on one of two roles—either as the prosecution or the defense."
-    show nina thinknote1
+    hide steve_normal
+    show steve_paper
     s "If you choose prosecution, Lex will act as the Crown attorney. This is the easier option." 
     s "As a prosecutor, Lex's goal is to establish the truth and ensure your testimony is clear, credible, and useful to the court. In this difficulty, if you miss something important, Lex may prompt you to clarify or expand on your findings."
-    show nina normal2
+    hide steve_paper
+    show steve_normal2
     s "If you choose defense, Lex will act as the defense attorney. This is the harder option."
-    show nina normal1
+    hide steve_normal2
+    show steve_normal
     s "A defense lawyer's priority is to protect their client, which means they will work to discredit you and your testimony. Expect Lex to challenge you with leading or loaded questions, and other cross-examination techniques designed to undermine your credibility." 
     s "You'll need to stay composed, justify your conclusions, and ensure your testimony remains admissible."
-    show nina normal3
+    hide steve_normal
+    show steve_happy
     s "Choose wisely! Your decision will shape the difficulty of your examination."
-    show nina thinknote1
+    hide steve_happy
+    show steve_paper
     s "Once you've made your selection, the court room awaits! I'll be seeing you after your trial. Good luck!"
     jump difficulty_selection 
 
@@ -219,10 +229,10 @@ label difficulty_selection:
     label lex_intro:
         scene bg interview
         "A figure walks into the room, wearing a crisp suit and carrying a briefcase."
-        show lawyer
+        show lex normal1
         l "Hello, my name is Lex Machina. I'll be examining you as an expert witness for this case."
         l "Could you please state your first and last name for the court?"
-        hide lawyer
+        hide lex normal1
         hide screen inventory_button
         hide screen inventory
         hide screen inspectItem
@@ -231,13 +241,13 @@ label difficulty_selection:
 
     label lex_intro2:
         show screen inventory_button
-        show lawyer
+        show lex normal1
         l "Thank you, [player_prefix] [player_lname]." 
-        l "Before we start, let me introduce you to the Judge presiding over this case, |judge name|."
-        show judge
+        l "Before we start, let me introduce you to the Judge presiding over this case, Justice Mathur."
+        show navya normal1
         j "Nice to meet you, [player_prefix] [player_lname]! Since this is not a real case, I will not be making any verdicts today, but I will be evaluating your testimony with Lex."
-        hide judge
-        show lawyer
+        hide navya normal1
+        show lex normal1
         l "I believe you've chosen to testify as an expert for [persistent.case_choice] in [persistent.specialty]. Very well, let's proceed."
     $ case_details = cases[persistent.case_choice] 
     $ ai_first_question = generate_response("Generate the first question for the expert witness to establish qualification in their field. Keep it short.", player_prefix, player_fname, player_lname, persistent.specialty, case_details, context_history, unintelligible_count,)
@@ -347,12 +357,12 @@ python:
 
 label interview_end:
     scene bg interview
-    show lawyer
+    show lex normal1
     l "Thank you for your time, [player_prefix] [player_lname]."
     show judge
     j "Thank you, Lex. [player_prefix] [player_fname] [player_lname], you may leave the court room. You will receive your evaluation outside with your supervisor."
     hide judge
-    hide lawyer
+    hide lex normal1
     python:
         try:
             all_truths = create_all_truths_set(persistent.case_choice, persistent.specialty)
@@ -384,22 +394,26 @@ label interview_end:
             renpy.store.score = 0
 
     scene bg spec
-    show sprite happy
+    show steve_happy
     s "Welcome back, [player_fname]! In just a second, Lex and the Judge will return with any feedback they have for you."
-    show sprite explain
+    hide steve_happy
+    show steve_normal2
     s "After you receive your feedback, I encourage you to testify again for the [unplayed_difficulty] to get the full court room experience."
-    show sprite neutral
+    hide steve_normal2
+    show steve_normal
     s "You can also choose a whole new case and specialty and start again! The choice is yours!"
     #ADD FOOTSTEPS SOUND HERE HEHEHE
-    show sprite think
+    hide steve_normal
+    show steve_happy
     s "Oh! Sounds like Lex and the Judge are about to join us. Don't worry, I'm sure you did great!"
+    hide steve_happy
     jump evaluation_sec
 
 label evaluation_sec:
     scene bg spec
-    show lawyer
+    show lex normal1
     l "Hello, |supervisor|. [player_prefix] [player_lname], are you ready to receive your evaluation?"
-    hide lawyer
+    hide lex normal1
     call screen evaluation_screen                                                                                
 
 label ending_0:

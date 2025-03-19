@@ -270,29 +270,18 @@ screen evaluation_screen:
             action Jump("ending_0")
 
 screen credits_lol:
-    frame:
+    add "thanks-for-playing.png":
         xalign 0.5
         yalign 0.5
-        xsize 800  
-        ysize 600  
-        background "#222"  
-
-        vbox:
-            xalign 0.5
-            yalign 0.5
-
-            text "THANKS FOR PLAYING":
-                color "#FFF"
-                size 32
-        hbox:
-            xalign 0.5
-            yalign 0.7
-            #spacing 100
-            button:
-                background "#4C4C4C"
-                hover_background "#363737"
-                action [SetVariable("answered_first_question", False), Jump("start")]
-                text "Try again"
+    hbox:
+        xalign 0.5
+        yalign 0.7
+        #spacing 100
+        button:
+            background "#4C4C4C"
+            hover_background "#363737"
+            action [SetVariable("answered_first_question", False), Jump("start")]
+             text "Try again"
 #           button:
 #               background "#4C4C4C"
 #               hover_background "#363737"

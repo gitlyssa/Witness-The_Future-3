@@ -2,9 +2,9 @@
 errors listed below, and try again.
 
 
-File "game/custom_screens.rpy", line 10: is not terminated with a newline. (Check strings and parenthesis.)
-(Perhaps you left out a " at the end of the first line.)
-                action ToggleScreen("case_description"")
+File "game/custom_screens.rpy", line 283: The text statement is not a valid child of the imagebutton statement.
+    text "Try again"
+        ^
 
-Ren'Py Version: Ren'Py 8.2.1.24030407
-Wed Mar 19 01:16:51 2025
+Ren'Py Version: Ren'Py 8.3.3.24111502
+Wed Mar 19 02:57:03 2025
