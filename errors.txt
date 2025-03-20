@@ -2,9 +2,8 @@
 errors listed below, and try again.
 
 
-File "game/custom_screens.rpy", line 283: The text statement is not a valid child of the imagebutton statement.
-    text "Try again"
-        ^
+File "game/a_script.rpy", line 227: is not terminated with a newline. (Check strings and parenthesis.)
+        voir_dire_questions = [
 
 Ren'Py Version: Ren'Py 8.3.3.24111502
-Wed Mar 19 02:57:03 2025
+Wed Mar 19 20:38:39 2025

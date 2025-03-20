@@ -107,6 +107,8 @@ label setupScene1:
     $ context_history = []
     $ unintelligible_count = 0
     $ mentioned_truths = set()  
+    $ qualification_score = 0
+    $ qualification_question_number = 0 
 
     show steve_normal
     s "Welcome to the courtroom. My name is Steve, and I'll be guiding you through your preparation before you deliver expert testimony!"
@@ -244,52 +246,113 @@ label difficulty_selection:
         show lex normal1
         l "Thank you, [player_prefix] [player_lname]." 
         l "Before we start, let me introduce you to the Judge presiding over this case, Justice Mathur."
+        hide lex normal1
         show navya normal1
         j "Nice to meet you, [player_prefix] [player_lname]! Since this is not a real case, I will not be making any verdicts today, but I will be evaluating your testimony with Lex."
+        hide navya normal1
+        show navya normal2
+        j "In a real courtroom, before you can testify as an expert witness, the lawyers would conduct a process called voir dire. This is where they ask you questions to determine whether you truly have the knowledge, skills, and experience to be considered an expert in your field."
+        hide navya normal2
+        show navya normal1
+        j "Of course, a full voir dire can be quite detailed, but for the sake of this training, we'll go through a shorter version. Lex will ask you a few questions to establish your expertise. Consider it as a warm-up before you take the stand. Answer honestly and clearly, just as you would in a real court."
         hide navya normal1
         show lex normal1
         l "I believe you've chosen to testify as an expert for [persistent.case_choice] in [persistent.specialty]. Very well, let's proceed."
     $ case_details = cases[persistent.case_choice] 
-    $ ai_first_question = generate_response("Generate the first question for the expert witness to establish qualification in their field. Keep it short.", player_prefix, player_fname, player_lname, persistent.specialty, case_details, context_history, unintelligible_count,)
-    jump first_question
+    #$ ai_first_question = generate_response("Generate the first question for the expert witness to establish qualification in their field. Keep it short.", player_prefix, player_fname, player_lname, persistent.specialty, case_details, context_history, unintelligible_count,)
+    jump voir_dire_loop
 
-label first_question:
-    $ responses = split_string(ai_first_question)
-    $ say_responses(responses)
-    $ context_history.append(f"AI: {ai_first_question}")
-    show screen reminder
-    $ user_prompt = renpy.input("Your answer here:")
-    $ context_history.append(f"User: {user_prompt}")
-    python:
-        all_truths = create_all_truths_set(persistent.case_choice, persistent.specialty)
-    $ ai_response = generate_response(user_prompt, player_prefix, player_fname, player_lname, persistent.specialty, case_details, context_history, unintelligible_count)
-    $ responses = split_string(ai_response)
-    hide screen reminder
-    $ reminder_pressed = False
-    $ say_responses(responses)
-    $ context_history.append(f"AI: {ai_response}")
+label voir_dire_loop:
+    if qualification_question_number < len(voir_dire_questions):
+        $ current_question = voir_dire_questions[qualification_question_number]
+        $ ai_first_question = current_question["question"]
+        $ responses = split_string(ai_first_question)
+        $ say_responses(responses)
+        $ context_history.append(f"AI: {ai_first_question}")
+        show screen reminder
+        $ user_prompt = renpy.input("Your answer here:")
+        $ context_history.append(f"User: {user_prompt}")
 
-    if "QUALIFICATION: UNQUALIFIED" in ai_response:
-        jump game_over
-    elif "QUALIFICATION: QUALIFIED" in ai_response:
-        $ mentioned_truths = set()
-        $ answered_first_question = True
         python:
-            for evidence_point in truth_bases[persistent.case_choice][persistent.specialty]:
-                for truth in truth_bases[persistent.case_choice][persistent.specialty][evidence_point]:
-                    if truth.lower() in user_prompt.lower():
-                        mentioned_truths.add(truth.lower())
-        show screen achievement_banner("The court finds you qualified!")
-        jump interview_loop
-    elif "unintelligible response" in ai_response:
-        $ unintelligible_count += 1
-        if unintelligible_count >= 3:
-            jump game_over
-        else:
-            jump first_question
+            ai_check_unintelligible = generate_response(user_prompt, player_prefix, player_fname, player_lname, persistent.specialty, case_details, context_history, unintelligible_count)
+
+            if "This is an unintelligible response." in ai_check_unintelligible:
+                unintelligible_count += 1
+                if unintelligible_count >= 3:
+                    renpy.say(l, "This examination cannot continue due to repeated unintelligible responses.")
+                    renpy.jump("game_over")
+                else:
+                    renpy.say(l, "I'm sorry, but your response was unclear. Please answer the question again.")
+                    renpy.hide("screen reminder")
+                    reminder_pressed = False
+                    renpy.jump("voir_dire_loop")
+
+            else:
+                acceptable_answers = current_question["acceptable_answers"]
+                answer_accepted = False
+                for keyword in acceptable_answers:
+                    if keyword.lower() in user_prompt.lower():
+                        answer_accepted = True
+                        break
+
+                if answer_accepted:
+                    qualification_score += current_question["score"]
+                    renpy.say(l, "Okay, moving on.")
+                else:
+                    renpy.say(l, "Hmm, interesting.")
+
+        hide screen reminder
+        $ reminder_pressed = False
+        $ qualification_question_number += 1
+        jump voir_dire_loop
     else:
-        "An unexpected error occurred. Please restart the game."
-        return
+        if qualification_score >= 3:
+            show screen achievement_banner("The court finds you qualified!")
+            $ answered_first_question = True
+            $ mentioned_truths = set()
+            l "The court finds you qualified to move on with the case." 
+            jump interview_loop 
+        else:
+            l "Based on the voir dire examination, the court finds you unqualified to testify as an expert witness."
+            jump game_over
+
+#label first_question:
+ #   $ responses = split_string(ai_first_question)
+ #   $ say_responses(responses)
+ #   $ context_history.append(f"AI: {ai_first_question}")
+ #   show screen reminder
+ #   $ user_prompt = renpy.input("Your answer here:")
+ #   $ context_history.append(f"User: {user_prompt}")
+ #   python:
+ #       all_truths = create_all_truths_set(persistent.case_choice, persistent.specialty)
+  #  $ ai_response = generate_response(user_prompt, player_prefix, player_fname, player_lname, persistent.specialty, case_details, context_history, unintelligible_count)
+  #  $ responses = split_string(ai_response)
+ #   hide screen reminder
+ #   $ reminder_pressed = False
+ #   $ say_responses(responses)
+  #  $ context_history.append(f"AI: {ai_response}")
+
+ #   if "QUALIFICATION: UNQUALIFIED" in ai_response:
+ #       jump game_over
+ #   elif "QUALIFICATION: QUALIFIED" in ai_response:
+  #      $ mentioned_truths = set()
+  #      $ answered_first_question = True
+  #      python:
+  #          for evidence_point in truth_bases[persistent.case_choice][persistent.specialty]:
+  #              for truth in truth_bases[persistent.case_choice][persistent.specialty][evidence_point]:
+  #                  if truth.lower() in user_prompt.lower():
+   #                     mentioned_truths.add(truth.lower())
+  #      show screen achievement_banner("The court finds you qualified!")
+  #      jump interview_loop
+ #   elif "unintelligible response" in ai_response:
+ #       $ unintelligible_count += 1
+ #       if unintelligible_count >= 3:
+ #           jump game_over
+ #       else:
+ #           jump first_question
+ ##   else:
+  #      "An unexpected error occurred. Please restart the game."
+  #      return
 
 label interview_loop:
     while True:
@@ -359,9 +422,10 @@ label interview_end:
     scene bg interview
     show lex normal1
     l "Thank you for your time, [player_prefix] [player_lname]."
-    show judge
+    hide lex normal1
+    show navya normal3
     j "Thank you, Lex. [player_prefix] [player_fname] [player_lname], you may leave the court room. You will receive your evaluation outside with your supervisor."
-    hide judge
+    hide navya normal3
     hide lex normal1
     python:
         try:

@@ -1,37 +1,56 @@
 ﻿I'm sorry, but an uncaught exception occurred.
 
-While running game code:
-  File "renpy/common/00keymap.rpy", line 504, in script
-    python hide:
-  File "renpy/common/00keymap.rpy", line 504, in <module>
-    python hide:
-  File "renpy/common/00keymap.rpy", line 528, in _execute_python_hide
-    renpy.save("_reload-1", "reload save game")
-TypeError: cannot pickle 're.Match' object
+After initialization, but before game start.
+  File "game/custom_screens.rpy", line 26, in prepare_screen
+    screen reminder:
+  File "game/custom_screens.rpy", line 26, in prepare
+    screen reminder:
+  File "game/custom_screens.rpy", line 35, in prepare
+    showif reminder_pressed:
+  File "game/custom_screens.rpy", line 35, in prepare
+    showif reminder_pressed:
+  File "game/custom_screens.rpy", line 36, in prepare
+    add "reminder pop up" at Transform(xalign=0.5, yalign=0, zoom=0.9, xzoom=0.86, y)
+  File "game/custom_screens.rpy", line 36, in prepare
+    add "reminder pop up" at Transform(xalign=0.5, yalign=0, zoom=0.9, xzoom=0.86, y)
+SyntaxError: positional argument follows keyword argument (game/custom_screens.rpy, line 36)
 
 -- Full Traceback ------------------------------------------------------------
 
 Full traceback:
-  File "renpy/common/00keymap.rpy", line 504, in script
-    python hide:
-  File "C:\Users\navya\Downloads\renpy-8.3.3-sdk\renpy\ast.py", line 821, in execute
-    renpy.python.py_exec_bytecode(self.code.bytecode, self.hide, store=self.store)
-  File "C:\Users\navya\Downloads\renpy-8.3.3-sdk\renpy\python.py", line 1178, in py_exec_bytecode
-    exec(bytecode, globals, locals)
-  File "renpy/common/00keymap.rpy", line 504, in <module>
-    python hide:
-  File "renpy/common/00keymap.rpy", line 528, in _execute_python_hide
-    renpy.save("_reload-1", "reload save game")
-  File "C:\Users\navya\Downloads\renpy-8.3.3-sdk\renpy\loadsave.py", line 431, in save
-    reraise(t, e, tb)
-  File "lib/python3.9/future/utils/__init__.py", line 444, in raise_
-  File "C:\Users\navya\Downloads\renpy-8.3.3-sdk\renpy\loadsave.py", line 417, in save
-    dump((roots, renpy.game.log), logf)
-  File "C:\Users\navya\Downloads\renpy-8.3.3-sdk\renpy\compat\pickle.py", line 107, in dump
-    pickle.dump(o, f, pickle.HIGHEST_PROTOCOL if highest else PROTOCOL)
-TypeError: cannot pickle 're.Match' object
+  File "C:\Users\navya\Downloads\renpy-8.3.3-sdk\renpy\bootstrap.py", line 359, in bootstrap
+    renpy.main.main()
+  File "C:\Users\navya\Downloads\renpy-8.3.3-sdk\renpy\main.py", line 652, in main
+    run(restart)
+  File "C:\Users\navya\Downloads\renpy-8.3.3-sdk\renpy\main.py", line 94, in run
+    renpy.display.screen.prepare_screens()
+  File "C:\Users\navya\Downloads\renpy-8.3.3-sdk\renpy\display\screen.py", line 1026, in prepare_screens
+    s.ast.prepare_screen()
+  File "game/custom_screens.rpy", line 26, in prepare_screen
+    screen reminder:
+  File "game/custom_screens.rpy", line 26, in prepare
+    screen reminder:
+  File "game/custom_screens.rpy", line 35, in prepare
+    showif reminder_pressed:
+  File "game/custom_screens.rpy", line 35, in prepare
+    showif reminder_pressed:
+  File "game/custom_screens.rpy", line 36, in prepare
+    add "reminder pop up" at Transform(xalign=0.5, yalign=0, zoom=0.9, xzoom=0.86, y)
+  File "game/custom_screens.rpy", line 36, in prepare
+    add "reminder pop up" at Transform(xalign=0.5, yalign=0, zoom=0.9, xzoom=0.86, y)
+  File "C:\Users\navya\Downloads\renpy-8.3.3-sdk\renpy\py3analysis.py", line 803, in ast_eval
+    return self.ast_eval_literal(expr)[0]
+  File "C:\Users\navya\Downloads\renpy-8.3.3-sdk\renpy\py3analysis.py", line 785, in ast_eval_literal
+    expr = py_compile(expr, 'eval', ast_node=True)
+  File "C:\Users\navya\Downloads\renpy-8.3.3-sdk\renpy\python.py", line 1144, in py_compile
+    raise e
+  File "C:\Users\navya\Downloads\renpy-8.3.3-sdk\renpy\python.py", line 1081, in py_compile
+    raise orig_e
+  File "C:\Users\navya\Downloads\renpy-8.3.3-sdk\renpy\python.py", line 1073, in py_compile
+    tree = compile(source, filename, py_mode, ast.PyCF_ONLY_AST | flags, 1)
+SyntaxError: positional argument follows keyword argument (game/custom_screens.rpy, line 36)
 
 Windows-10-10.0.26100 AMD64
 Ren'Py 8.3.3.24111502
 Court Room Scene 1.0
-Wed Mar 19 02:56:55 2025
+Wed Mar 19 09:36:34 2025

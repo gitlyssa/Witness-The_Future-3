@@ -13,14 +13,14 @@ screen case_description:
     image "menu-bg_1" align (0.5, 0.15) at Transform(zoom=0.65)
     if persistent.case_choice == "Case A":
         $ item_name = "Case A"
-        $ item_desc = "Case A description"
+        $ item_desc = "On the night of March 15th, Ana Konzaki was found dead at a house party hosted by her and her boyfriend, Ezra Verhoesen. The party was a casual gathering with alcohol and marijuana present, but no hard drugs. Witnesses report that a violent altercation broke out between Ezra and an unknown individual, resulting in both men sustaining injuries.\n\nAna was later discovered unconscious with a fatal head wound. One witness claims to have called a drug dealer, Edward Bartlett, on the night of the party. Edward is also the accused on trial, as some witnesses identified him as the individual who attacked Ezra in a lineup."
         $ case_image = "CaseA_File.png"
     else:
         $ item_name = "Case B"
-        $ item_desc = "Case B desciption"
+        $ item_desc = "An unknown body was discovered floating in a lake in a public park by a passer-by. The victim was later identified by family as 13 year old Jacob DeSouza. The cause of death appears to be strangulation, and not drowning. The accused is his adoptive father, Kiernan DeSouza.\n\nKiernan had been reported absent from work and was not at home around the time of Jacob's death. Furthermore, Kiernan's car was discovered near the lake where the body was found. The investigation has been complicated by the lack of direct witnesses and evidence of forced entry into the home."
         $ case_image = "CaseB_File.png"
     text "{}".format(item_name) size 30 align (0.35, 0.62) color "#000000"
-    text "{}".format(item_desc) size 30 align (0.63, 0.35) color "#000000"
+    text "{}".format(item_desc) size 25 xmaximum 500 align (0.63, 0.35) color "#000000"
     image "[case_image]" align (0.3, 0.4) at Transform(zoom=2)
 
 screen reminder:
@@ -30,10 +30,10 @@ screen reminder:
             auto "question_%s" at Transform(zoom=0.3)
             action ToggleVariable("reminder_pressed")
 
-    $ reminder_text = responses[-1] if answered_first_question else ai_first_question
+    $ reminder_text = responses[-1] if answered_first_question else split_string(ai_first_question)[-1]
     
     showif reminder_pressed:
-        add "reminder pop up" at Transform(xalign=0.5, yalign=0, zoom=0.9, xzoom=0.86)
+        add "reminder pop up" at Transform(xalign=0.5, yalign=0, zoom=0.9, xzoom=0.86, yzoom=0.8)
 
         frame:
             xalign 0.5
@@ -281,7 +281,7 @@ screen credits_lol:
             background "#4C4C4C"
             hover_background "#363737"
             action [SetVariable("answered_first_question", False), Jump("start")]
-             text "Try again"
+            text "Try again"
 #           button:
 #               background "#4C4C4C"
 #               hover_background "#363737"
