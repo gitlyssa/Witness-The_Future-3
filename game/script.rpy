@@ -146,10 +146,10 @@ label tutorial_specialty:
     s "Perfect! Now, let's choose your forensic specialty."
     hide steve_happy
     show steve_normal2
-    s "As an expert witness, your role is to analyze and present evidence within your area of expertise. Your selection will determine the type of evidence you'll be responsible for in court."
+    s "As an expert witness, your role is to analyze and present evidence within the scope of your expertise. Your duty to the court is to present objective information that will help the triers of fact make a decision."
     hide steve_normal2
     show steve_paper
-    s "Because this is just a mock scenario, you will only have to testify for two pieces of evidence. Please look through the evidence carefully!"
+    s "The specialty you select will determine the area of expertise and the aspects of the case that you will have to testify for. Please review your options carefully!"
     jump specialty_menu
 
 label specialty_menu:
@@ -184,9 +184,10 @@ label tutorial_lex_diff:
     show screen inventory_button
     show steve_happy
     show screen darken_background
-    #### Add arrow###
-    s "Great choice! On the top left corner, you'll see the evidence button. If you want to view all your evidence, click on it!"
-    s "If you want more information about a particular piece of evidence, press on the info button when hovering over one."
+    #### Add arrow ###
+    s "Great choice! On the top left corner, you'll see the evidence button. Click this button if you want to refresh your memory about the aspects of the case you are testifying for!"
+    ## open the inventory to show them what the info button even looks like + arrow ###
+    s "If you want to read the item description, click the info button on the item."
     hide screen darken_background
     s "Now, there's just one more thing before you step into court."
     hide steve_happy
@@ -197,15 +198,15 @@ label tutorial_lex_diff:
     s "Depending on your selection, Lex will take on one of two roles—either as the prosecution or the defense."
     hide steve_normal
     show steve_paper
-    s "If you choose prosecution, Lex will act as the Crown attorney. This is the easier option." 
+    s "If you choose prosecution, Lex will act as the Crown attorney. This is the easier option as you will be providing examination-in-chief." 
     s "As a prosecutor, Lex's goal is to establish the truth and ensure your testimony is clear, credible, and useful to the court. In this difficulty, if you miss something important, Lex may prompt you to clarify or expand on your findings."
     hide steve_paper
     show steve_normal2
     s "If you choose defense, Lex will act as the defense attorney. This is the harder option."
     hide steve_normal2
     show steve_normal
-    s "A defense lawyer's priority is to protect their client, which means they will work to discredit you and your testimony. Expect Lex to challenge you with leading or loaded questions, and other cross-examination techniques designed to undermine your credibility." 
-    s "You'll need to stay composed, justify your conclusions, and ensure your testimony remains admissible."
+    s "A defense lawyer's priority is to advocate for their client, the accused, within the bounds of the law to test the strength of the crown's case. They may challenge you and your findings, perhaps even working to discredit your testimony." 
+    s "Expect Lex to challenge you with leading or loaded questions, and other cross-examination techniques designed to undermine your credibility. You'll need to stay composed, justify your conclusions, and ensure your testimony remains admissible."
     hide steve_normal
     show steve_happy
     s "Choose wisely! Your decision will shape the difficulty of your examination."
@@ -310,7 +311,12 @@ label voir_dire_loop:
             show screen achievement_banner("The court finds you qualified!")
             $ answered_first_question = True
             $ mentioned_truths = set()
-            l "The court finds you qualified to move on with the case." 
+            hide lex normal1
+            show navya normal3
+            j "The court finds you qualified to move on with the case. Lex, you may begin examining your witness."
+            hide navya normal3
+            show lex normal1
+            l "Thank you, your honour. Let's proceed."
             jump interview_loop 
         else:
             l "Based on the voir dire examination, the court finds you unqualified to testify as an expert witness."

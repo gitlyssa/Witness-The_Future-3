@@ -15,9 +15,9 @@
         return text.replace("{", "{{").replace("}", "}}").replace("[", "\\[").replace("]", "\\]")
 
     if LEX_DIFFICULTY == "prosecution":
-        difficulty_instructions = "You are a prosecutor examining an expert witness. Your goal is to ensure justice is served, so guide them through clear, thorough testimony that strengthens the case. Use clarifying questions, prompt for completeness, and ensure their testimony is clear, credible, and useful to the court. In this difficulty, if you miss something important, Lex may prompt you to clarify or expand on your findings."
+        difficulty_instructions = "You are a prosecutor examining an expert witness. Your goal is to ensure justice is served, so guide them through clear, thorough testimony that strengthens the case. Use clarifying questions, prompt for completeness, walk the expert through their answer and help them exclude possibilities. In this difficulty, if the player misses something important, prompt them to clarify or expand on your findings."
     elif LEX_DIFFICULTY == "defense":
-        difficulty_instructions = "You are a defense attorney cross-examining an expert witness. Your primary objective is to strategically discredit their testimony and create doubt about their conclusions. Use aggressive but legally appropriate tactics, such as leading questions, loaded questions, and challenges to their expertise, methodology, and conclusions. Show inconsistencies and cast doubt by pointing out errors or inconsistencies to the judge to make your point. NEVER HELP THE WITNESS"
+        difficulty_instructions = "You are a defense attorney cross-examining an expert witness. Your primary objective is to strategically discredit their testimony and create doubt about their conclusion because you need to defend the accused. Use aggressive but legally appropriate tactics, such as leading questions, loaded questions, and challenges to their expertise, methodology, and conclusions. Cast doubt by pointing out errors or inconsistencies to the judge to make your point. NEVER HELP THE WITNESS"
     else:
         difficulty_instructions = "Inform the player that a difficulty wasn't selected, so the questions will be general. Ask moderately challenging questions, requiring some knowledge of the case details and the chosen specialty."
 
@@ -36,7 +36,7 @@
             system_context = (
                 f"You are Lex Machina, an AI trial lawyer responsible for examining expert witnesses in a mock courtroom. Always speak like a real lawyer addressing a judge."
                 f"{difficulty_instructions}"
-                f"keep all responses and questions concise, Stop justifying your questions unless they are necessary."
+                f"keep all responses and questions concise. If necessary to get to a truth base, ask questions that exclude possibilities such as 'What is your opinion on a particular scenario' or 'do you think it is possible to'."
                 f"All sentences in your response should be under {TEXT_LIMIT} characters. Do not include any line breaks in your response. After ending your sentence with punctuation (. ? ! etc.), include a $ after it. Do not substitute punctuation with a $."
                 f"The player has chosen to testify in {case_details['case_name']}. "
                 f"The key evidence they must discuss, based on their specialty ({specialty}), includes: {case_details['evidence'][specialty]}. "
@@ -147,23 +147,23 @@
     cases = {
         "Case A": {
             "case_name": "Case A: The Death of Ana Konzaki",
-            "description": "Ana Konzaki was found dead in her home during a party. Evidence reflects blunt force trauma as cause of death, and the accused on trial is a drug dealer, Edward Bartlett, identified to have been attacking Ana's partner, Ezra Verhoesen. The dealer arrived under the mistaken impression that Ezra and Ana called him, and demanded compensation, leading into a fight where Ezra was knocked out and Ana was killed getting between the two by getting hit with a gin bottle, an accidental murder. Partygoers who were unaware of what happened called the police after they realized that she was not breathing.",
+            "description": "Ana Konzaki was found deceased in her home during a party. Forensic findings indicate that she sustained blunt force injuries. The accused, a drug dealer named Edward Bartlett, was present at the scene and had been involved in an altercation with Ana's partner, Ezra Verhoesen. Evidence suggests that Bartlett arrived under the mistaken impression that Ezra and Ana had contacted him for his services and demanded compensation when asked to leave. A physical confrontation ensued, during which Ezra was rendered unconscious. It is estimated that Ana passed away sometime after Ezra lost consciousness. Partygoers, unaware of the events that had taken place, contacted emergency sercices as soon as they realized Ana was not breathing.",
             "evidence": {
                 "Anthropology": {
-                    "point_1": "Blunt force trauma analysis - The skull fracture indicates a single forceful strike from a large cylindrical object.",
-                    "point_2": "Post-mortem examination reveals contrecoup injuries to the brain, suggesting rapid movement of the brain upon impact. The absence of defensive wounds indicates that Ana did not see the attack coming."
+                    "point_1": "The observed trauma is consistent with impact from a focused blunt force instrument with a rounded striking surface. No weapon was recovered from the scene, but the characteristics of the injury indicate it was caused by a tool with a concentrated point of impact, such as a hammer, mallet, or a similarly shaped instrument.",
+                    "point_2": "Analysis of the fracture patterns on the skull suggests two impacts that occurred in close succession on the superior occipital bone, below the lambdoid suture. The fracture lines associated with the right-side impact dissipate into those from the left, indicating that the left-side impact likely occurred first. We cannot determine the exact time between these two impacts, only their relative sequence if they occurred around the same time."
                 },
                 "Biology": {
-                    "point_1": "Blood analysis shows traces of a rare toxin.",
-                    "point_2": "Semen analysis reveals an unknown DNA profile."
+                    "point_1": "DNA analysis on blood stains found on Ana's clothing and nearby surfaces confirmed that Ana's blood was the source of the bloodstains. This helps confirm that the injury occurred in the vicinity of where the blood was found. The analysis also ruled out the presence of any foreign blood from other individuals at the scene, supporting the conclusion that Ana was the primary victim of the attack.",
+                    "point_2": "Microscopic examination of the crime scene revealed the presence of scalp tissue and hair fibers near the areas where blood spatter was found. These materials were likely dislodged during the blunt force trauma that Ana sustained. The tissue and hair fibers were transferred to surrounding surfaces, supporting the conclusion that the injury occurred in close proximity to where the biological materials were found."
                 },
                 "Chemistry": {
-                    "point_1": "Ana's postmortem blood analysis shows 0.06% BAC (Blood Alcohol Content) and THC metabolites, consistent with casual marijuana use earlier in the night. No hard drugs were detected, supporting claims that the party did not involve cocaine or other narcotics.",
-                    "point_2": "Substance analysis reveals traces of an unknown compound."
+                    "point_1": "Postmortem toxicology analysis of Ana Konzaki's blood detected an ethanol concentration of 0.02% BAC, which is consistent with light alcohol consumption. No other intoxicants were detected. While the ethanol level is unlikely to have significantly impaired her motor skills or cognitive function, it could still have had a minor effect on her coordination and judgment at the time of the incident.",
+                    "point_2": "Microscopic analysis of Ana Konzaki's head wound reveals small embedded traces of metal, suggesting the object that caused the injury had a metal striking surface."
                 },
                 "Psychology": {
-                    "point_1": "Victim's mental state showed increasing paranoia.",
-                    "point_2": "A recovered letter hints at a possible conspiracy."
+                    "point_1": "Edward Bartlett's criminal history indicates repeated occurrences of violence. His most recent charge was 6 months prior for assaulting an individual during a bar altercation. Following the latest charge, Bartlett was sentenced to probation with mandatory anger management counseling, indicating ongoing concerns about his violent behaviour.",
+                    "point_2": "Ezra Verhoesen testified that he did not know Bartlett prior to the incident and had no reason to invite him to the party. He claimed that Bartlett was incredibly aggressive about getting compensation for wasting his time. He also confirmed in his testimony that Bartlett had broken his nose, causing him to fall unconscious."
                 },
                 "Identification": {
                     "point_1": "Fingerprints on the collected metal water bottle's sticker, developed using the DFO method. The print seems consistent with the right index finger on Edward Bartlett's elimination set.",
@@ -173,11 +173,11 @@
         },
         "Case B": {
             "case_name": "Case B: The Park Incident",
-            "description": "An unknown body was discovered floating in a lake in a public park by a passer-by. The victim was later identified by family as 13-year-old Jacob DeSouza. The cause of death appears to be strangulation, and not drowning. The accused is his adoptive father, Kiernan DeSouza. Kiernan had been reported absent from work and was not at home around the time of Jacob's death. Furthermore, Kiernan's car was discovered near the lake where the body was found. The investigation has been complicated by the lack of direct witnesses and evidence of forced entry into the home.",
+            "description": "An unidentified body was discovered by a passerby floating in a lake in a public park. The deceased was later identified by the family as 13-year-old Jacob DeSouza. Forensic findings indicate that he sustained injuries consistent with strangulation, and not drowning. The accused is his adoptive father, Kiernan DeSouza. Kiernan had been reported absent from work and was not at home around the time of Jacob's death. Furthermore, Kiernan's car was discovered near the lake where the body was found. However, the investigation has been complicated by the lack of direct witnesses, or evidence of forced entry into the home.",
             "evidence": {
                 "Anthropology": {
                     "point_1": "Jacob's autopsy revealed bruising on his neck, but the hyoid bone was not fractured. Small hemorrhages (petechiae) were found in his eyes and face.",
-                    "point_2": "Based on bloating, skin slippage, and insect activity, they estimate he had been dead for approximately 36-48 hours before being discovered."
+                    "point_2": "Based on bloating, skin slippage, and insect activity, it is estimated that he had been dead for approximately 36-48 hours before being discovered."
                 },
                 "Biology": {
                     "point_1": "Jacob's stomach contents included partially digested fast food, placing his last meal approximately 30 minutes to 1 hour before death.",
@@ -297,45 +297,51 @@
             },
             "Anthropology": {
                 "point_1": [
-                    "forceful strike",
-                    "large cylindrical object"
+                    "circular lesion reflects rounded striking surface",
+                    "likely a hammer-like shape (may not use that exact word, but must mention types of weapons that can inflict this injury)"
                 ],
                 "point_2": [
-                    "contrecoup injuries",
-                    "rapid movement of the brain",
-                    "no defensive wounds"
+                    "fracture patterns",
+                    "two impacts within close succession",
+                    "superior occipital bone, below the lambdoid suture",
+                    "left-side impact likely occurred first because fracture lines associated with the right-side impact dissipate into those from the left",
+                    "not possible to determine the exact time between these two impacts"
                 ]
             },
             "Biology": {
                 "point_1": [
-                    "blood analysis shows traces",
-                    "rare toxin"
+                    "DNA analysis method",
+                    "Ana’s blood was the source of the bloodstains",
+                    "analysis ruled out the presence of any foreign DNA, meaning Ana was primary victim"
+
                 ],
                 "point_2": [
-                    "Semen analysis reveals",
-                    "unknown DNA profile"
+                    "microscopic examination revealing scalp tissue and hair fibers near the blood spatter",
+                    "biological materials were likely dislodged from Ana's head during the blunt force trauma",
+                    "The proximity of the biological materials to the blood spatter suggests that the injury happened in the same area"
                 ]
             },
             "Chemistry": {
                 "point_1": [
-                    "BAC of 0.06%",
-                    "THC metabolites",
-                    "casual marijuana use",
-                    "no hard drugs"
+                    "ethanol concentration of 0.02% BAC, consistent with light alcohol consumption",
+                    "alcohol level unlikely to impair motor coordination or cognitive abilities, but maybe on judgement"
                 ],
                 "point_2": [
-                    "substance analysis",
-                    "unknown compound"
+                    "Microscopic analysis of head wound revealed embedded traces of metal, suggesting that the object causing the injury had a metal striking surface",
+                    "presence of metal in the wound means likely a metal weapon"
                 ]
             },
             "Psychology": {
                 "point_1": [
-                    "mental state showed increasing paranoia",
-                    "increasing paranoia"
+                    "Documented pattern of violence",
+                    "recent offence for a similar altercation where substances are involved",
+                    "mandatory anger management counseling indicates he has a tendency to lose temper",
+                    "do not know if that makes him capable of murder"
                 ],
                 "point_2": [
-                    "recovered letter",
-                    "possible conspiracy"
+                    "Bartlett's presence was unsolicited",
+                    "Bartlett was aggressive about compensation, indicating monetary motive paired with aggressive tendencies",
+                    "physical assault demonstrates propensity for violence"
                 ]
             }
         },
