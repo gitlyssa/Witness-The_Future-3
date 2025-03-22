@@ -18,7 +18,64 @@ GENERAL NOTES:
     - If you find any bugs in this code, please let me (Vivian) know!
 """
 
-init python:
+init python:  
+    def enable_evidence():
+        if persistent.case_choice == "Case A":
+            if persistent.specialty == "Anthropology":
+                inventory_item_names = ["Case_A_Anthropology_1", "Case_A_Anthropology_2"]
+                addToInventory(["case_a_anthropology_1", "case_a_anthropology_2"])
+            elif persistent.specialty ==  "Biology":
+                inventory_item_names = ["Case_A_Biology_1", "Case_A_Biology_2"]
+                addToInventory(["case_a_biology_1", "case_a_biology_2"])
+            elif persistent.specialty ==  "Chemistry":
+                inventory_item_names = ["Case_A_Chemistry_1", "Case_A_Chemistry_2"]
+                addToInventory(["case_a_chemistry_1", "case_a_chemistry_2"])
+            elif persistent.specialty ==  "Psychology":
+                inventory_item_names = ["Case_A_Psychology_1", "Case_A_Psychology_2"]
+                addToInventory(["case_a_psychology_1", "case_a_psychology_2"])
+            else: # persistent.specialty ==  "Identification":
+                inventory_item_names = ["Case_A_Identification_1", "Case_A_Identification_2"]
+                addToInventory(["case_a_identification_1", "case_a_identification_2"])
+        else: # persistent.case_choice == "Case B"
+            if persistent.specialty == "Anthropology":
+                inventory_item_names = ["Case_B_Anthropology_1", "Case_B_Anthropology_2"]
+                addToInventory(["case_b_anthropology_1", "case_b_anthropology_2"])
+            elif persistent.specialty ==  "Biology":
+                inventory_item_names = ["Case_B_Biology_1", "Case_B_Biology_2"]
+                addToInventory(["case_b_biology_1", "case_b_biology_2"])
+            elif persistent.specialty ==  "Chemistry":
+                inventory_item_names = ["Case_B_Chemistry_1", "Case_B_Chemistry_2"]
+                addToInventory(["case_b_chemistry_1", "case_b_chemistry_2"])
+            elif persistent.specialty ==  "Psychology":
+                inventory_item_names = ["Case_B_Psychology_1", "Case_B_Psychology_2"]
+                addToInventory(["case_b_psychology_1", "case_b_psychology_2"])
+            else: # persistent.specialty ==  "Identification":
+                inventory_item_names = ["Case_B_Identification_1", "Case_B_Identification_2"]
+                addToInventory(["case_b_identification_1", "case_b_identification_2"])
+    
+    evidence = {
+        "Case_A_Anthropology_1": "Case A, Anthropology, Evidence 1 Description",
+        "Case_A_Anthropology_2": "Case A, Anthropology, Evidence 2 Description",
+        "Case_A_Biology_1": "Case A, Biology, Evidence 1 Description",
+        "Case_A_Biology_2": "Case A, Biology, Evidence 2 Description",
+        "Case_A_Chemistry_1": "Case A, Chemistry, Evidence 1 Description",
+        "Case_A_Chemistry_2": "Case A, Chemistry, Evidence 2 Description",
+        "Case_A_Psychology_1": "Case A, Psychology, Evidence 1 Description",
+        "Case_A_Psychology_2": "Case A, Psychology, Evidence 2 Description",
+        "Case_A_Identification_1": "Case A, Identification, Evidence 1 Description",
+        "Case_A_Identification_2": "Case A, Identification, Evidence 2 Description",
+        "Case_B_Anthropology_1": "Case B, Anthropology, Evidence 1 Description",
+        "Case_B_Anthropology_2": "Case B, Anthropology, Evidence 2 Description",
+        "Case_B_Biology_1": "Case B, Biology, Evidence 1 Description",
+        "Case_B_Biology_2": "Case B, Biology, Evidence 2 Description",
+        "Case_B_Chemistry_1": "Case B, Chemistry, Evidence 1 Description",
+        "Case_B_Chemistry_2": "Case B, Chemistry, Evidence 2 Description",
+        "Case_B_Psychology_1": "Case B, Psychology, Evidence 1 Description",
+        "Case_B_Psychology_2": "Case B, Psychology, Evidence 2 Description",
+        "Case_B_Identification_1": "Case B, Identification, Evidence 1 Description",
+        "Case_B_Identification_2": "Case B, Identification, Evidence 2 Description",
+    }
+     
     # INVENTORY FUNCTIONS -----------------------------------------------
     """
     When the user clicks the "hand" icon, this function updates the item's position in the evidence box to match the cursor so it moves
@@ -1016,30 +1073,22 @@ screen inspectItem(items):
             item_desc = ""
             for name in inventory_item_names:
                 temp_name = name.replace(" ", "-")
-                temp_name = name.replace(" ", "_")
+                tempname = name.replace(" ", "")
                 if temp_name.lower() == items[0]:
                     item_name = name
-            
-            if item_name == "Fingerprint":
-                item_desc = "This is a fingerprint."
-            elif item_name == "Handprint":
-                item_desc = "This is a handprint."
-            elif item_name == "Gin":
-                item_desc = "This is a gin bottle."
-            elif item_name == "Splatter":
-                item_desc = "This is a splatter."
-            elif item_name == "Footprint":
-                item_desc = "This is a footprint."
+
+            item_desc = evidence[item_name]
 
         text "{}".format(item_name) size 30 align (0.35, 0.62) color "#000000"
-        text "{}".format(item_desc) size 30 align (0.63, 0.35) color "#000000"
+        text "{}".format(item_desc) size 30 align (0.63, 0.35) color "#000000" xmaximum 500
 
 
         if items[0] == "lantern":
             $lantern_state = inventory_sprites[inventory_items.index("lantern")].state
             image "Items Pop Up/{}-{}-pop-up.png".format("lantern", lantern_state) align (0.5, 0.5) at half_size
         else:
-            image "Items Pop Up/{}-pop-up.png".format(items[0]) align (0.32, 0.3)
+            # image "Items Pop Up/{}-pop-up.png".format(items[0]) align (0.32, 0.3)
+            image "Inventory items/inventory-{}.png".format(items[0]) align (0.33, 0.35) at Transform(zoom=1.75)
 
             
 

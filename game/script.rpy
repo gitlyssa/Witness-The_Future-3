@@ -25,7 +25,7 @@ label start:
     $inventory_SM = SpriteManager(update = inventoryUpdate, event = inventoryEvents) # sprite manager that manages evidence items; triggers function inventoryUpdate 
     $inventory_sprites = [] # holds all evidence sprite objects
     $inventory_items = [] # holds evidence items
-    $inventory_item_names = ["Fingerprint", "Handprint", "Gin", "Splatter", "Footprint"] # holds names for inspect pop-up text 
+    $inventory_item_names = ["Case_A_Anthropology_1", "Case_A_Anthropology_2", "Case_A_Biology_1", "Case_A_Biology_2", "Case_B_Psychology_1", "Case_A_Chemistry_1", "Case_A_Chemistry_2", "Case_A_Psychology_1", "Case_A_Psychology_2", "Case_A_Identification_1", "Case_A_Identification_2", "Case_B_Anthropology_1", "Case_B_Anthropology_2", "Case_B_Biology_1", "Case_B_Biology_2", "Case_B_Chemistry_1", "Case_B_Chemistry_2", "Case_B_Psychology_1", "Case_B_Psychology_2", "Case_B_Identification_1", "Case_B_Identification_2", "Handprint", "Gin", "Splatter", "Footprint"] # holds names for inspect pop-up text
     $inventory_db_enabled = False # determines whether up arrow on evidence hotbar is enabled or not
     $inventory_ub_enabled = False # determines whether down arrow on evidence hotbar is enabled or not
     $inventory_slot_size = (int(215 / 2), int(196 / 2)) # sets slot size for evidence bar
@@ -78,7 +78,7 @@ label setupScene1:
     python:
         # --------- ADDING ITEMS TO INVENTORY --------- 
         # change these parameters as necessary
-        addToInventory(["fingerprint", "handprint", "gin", "splatter", "footprint"])
+        #addToInventory(["fingerprint", "handprint", "gin", "splatter", "footprint"])
 
         for item in environment_items: # iterate through environment items list
             idle_image = Image("Environment Items/{}-idle.png".format(item)) # idle version of image
@@ -315,11 +315,12 @@ label voir_dire_loop:
             show navya normal3
             j "The court finds you qualified to move on with the case. Lex, you may begin examining your witness."
             hide navya normal3
-            show lex normal1
-            l "Thank you, your honour. Let's proceed."
-            jump interview_loop 
+            jump generate_first_question
         else:
-            l "Based on the voir dire examination, the court finds you unqualified to testify as an expert witness."
+            hide lex normal1
+            show navya normal3
+            j "Based on the voir dire examination, the court finds you unqualified to testify as an expert witness."
+            hide navya normal3
             jump game_over
 
 #label first_question:
@@ -360,7 +361,16 @@ label voir_dire_loop:
   #      "An unexpected error occurred. Please restart the game."
   #      return
 
+label generate_first_question:
+    $ ai_first_question = generate_response("Generate the first question about the evidence in the case, based on the expert's chosen specialty. Keep it short.", player_prefix, player_fname, player_lname, persistent.specialty, case_details, context_history, unintelligible_count)
+    jump interview_loop
+
 label interview_loop:
+    show lex normal1
+    l "Thank you, your honour. Let's proceed."
+    $ responses = split_string(ai_first_question)
+    $ say_responses(responses)
+    $ context_history.append(f"AI: {ai_first_question}")
     while True:
         show screen reminder
         $ user_prompt = renpy.input("Your answer here:")
@@ -409,6 +419,8 @@ label game_over:
     scene bg gameover
     "The examination has been terminated because you were deemed unqualified to testify as an expert witness."
     "Please select \"Restart\" to try again."
+    ##screen buttons
+    
     menu:
         "Restart":
             $ answered_first_question = False

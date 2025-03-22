@@ -2,8 +2,11 @@
 errors listed below, and try again.
 
 
-File "game/a_script.rpy", line 227: is not terminated with a newline. (Check strings and parenthesis.)
-        voir_dire_questions = [
+The label interview_loop is defined twice, at File "game/script.rpy", line 368:
+label interview_loop:
+and File "game/script.rpy", line 375:
+label interview_loop:
+
 
 Ren'Py Version: Ren'Py 8.3.3.24111502
-Wed Mar 19 20:38:39 2025
+Fri Mar 21 23:32:09 2025

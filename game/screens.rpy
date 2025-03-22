@@ -188,11 +188,13 @@ style say_dialogue:
 
 screen input(prompt):
     style_prefix "input"
+    add "answer_dialogue_box" at Transform(xzoom=0.65, yzoom=0.35, xalign=0.5, yalign=0.97)
 
     window:
         id "window"
+        background None
         xmargin 300
-        top_margin 50
+        top_margin 15
         has viewport:
             yinitial 1000   # Auto-scrolling on new line up to 1000px
             draggable True
@@ -219,6 +221,7 @@ style input_prompt:
 style input:
     xalign gui.dialogue_text_xalign
     xmaximum gui.dialogue_width
+    color "#b4fbff"
 
 
 ## Choice screen ###############################################################

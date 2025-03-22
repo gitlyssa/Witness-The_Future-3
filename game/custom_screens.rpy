@@ -13,7 +13,7 @@ screen case_description:
     image "menu-bg_1" align (0.5, 0.15) at Transform(zoom=0.65)
     if persistent.case_choice == "Case A":
         $ item_name = "Case A"
-        $ item_desc = "On the night of March 15th, Ana Konzaki was found dead at a house party hosted by her and her boyfriend, Ezra Verhoesen. The party was a casual gathering with alcohol and marijuana present, but no hard drugs. Witnesses report that a violent altercation broke out between Ezra and an unknown individual, resulting in both men sustaining injuries.\n\nAna was later discovered unconscious with a fatal head wound. One witness claims to have called a drug dealer, Edward Bartlett, on the night of the party. Edward is also the accused on trial, as some witnesses identified him as the individual who attacked Ezra in a lineup."
+        $ item_desc = "On the night of March 15th, Ana Konzaki was found dead at a house party hosted by her and her boyfriend, Ezra Verhoesen. The party was a casual gathering with alcohol and marijuana present, but no hard drugs. Witnesses report that a violent altercation broke out between Ezra and an unknown individual, resulting in both men sustaining injuries.\n\nAna was later discovered unconscious with a fatal head wound, likely blunt force trauma. One witness claims to have called a drug dealer, Edward Bartlett, on the night of the party. Edward is also the accused on trial, as some witnesses identified him as the individual who attacked Ezra in a lineup."
         $ case_image = "CaseA_File.png"
     else:
         $ item_name = "Case B"
@@ -190,7 +190,7 @@ screen specialty_exploration_screen(specialty):
     $ evidence_dict = case_details['evidence'][specialty] 
 
     add "frame" at Transform(zoom=0.85, xalign=0.5, yalign=0.3)
-    
+
     frame:
         xpadding 40
         ypadding 20
@@ -200,18 +200,14 @@ screen specialty_exploration_screen(specialty):
         xsize 1300
         background None
 
-    text "[case_details['case_name']]\nSpecialty: [specialty]":
+    text "[case_details['case_name']]\nSpecialty: [specialty]\n\nEvidence Point 1: [evidence_dict['point_1']]\n\nEvidence Point 2: [evidence_dict['point_2']]":
         xalign 0.5
-        yalign 0.2
-
-    text "Evidence Point 1: [evidence_dict['point_1']]\n\nEvidence Point 2: [evidence_dict['point_2']]":
-        xalign 0.5
-        yalign 0.42
+        yalign 0.35
         xmaximum 1200
 
     hbox:
         xalign 0.5
-        yalign 0.7
+        yalign 0.8
         spacing 100
 
         button:
@@ -225,7 +221,7 @@ screen specialty_exploration_screen(specialty):
             # background "#4C4C4C"
             # hover_background "#363737"
             style "selection_button"
-            action [SetVariable("persistent.specialty", specialty), If(tutorial_skipped == False, Jump("tutorial_lex_diff"), Jump("difficulty_selection"))]
+            action [SetVariable("persistent.specialty", specialty), Function(enable_evidence), If(tutorial_skipped == False, Jump("tutorial_lex_diff"), Jump("difficulty_selection"))]
             text "Choose this Specialty"
 
 screen evaluation_screen:

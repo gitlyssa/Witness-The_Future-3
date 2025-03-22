@@ -229,7 +229,7 @@
             "question": "Please describe your educational background and relevant qualifications in [persistent.specialty].",
             "acceptable_answers": [
                 "certifications in",
-                "more than 3 years of experience",
+                "more than 2 years of experience",
                 "phd",
                 "master's",
             ],
@@ -238,7 +238,7 @@
         {
             "question": "Could you outline your professional experience in the field, specifically highlighting any projects or publications related to the case at hand.",
             "acceptable_answers": [
-                "years of experience",
+                "et al",
                 "cases",
                 "projects",
                 "research",
@@ -250,6 +250,8 @@
             "question": "Are you board certified or possess any specialized credentials related to your expertise in [persistent.specialty]?",
             "acceptable_answers": [
                 "board certified",
+                "apa"
+                "ISO"
                 "credential",
                 "license",
                 "registered"
@@ -270,6 +272,7 @@
             "question": "Can you confirm that you have no conflicts of interest that could compromise your objectivity in this case?",
             "acceptable_answers": [
                 "conflict of interest",
+                "none"
                 "impartial",
                 "objective",
                 "unbiased"
