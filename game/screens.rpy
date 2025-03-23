@@ -4,7 +4,6 @@
 
 init offset = -1
 
-
 ################################################################################
 ## Styles
 ################################################################################
@@ -97,24 +96,36 @@ style frame:
 
 screen say(who, what):
     style_prefix "say"
+    showif who == "Lex Machina":
+        add "lex_dialogue_box" at Transform(xzoom=0.65, yzoom=0.6, xpos=90, ypos=550)
+    showif who == "Steve":
+        add "steve_dialogue_box" at Transform(xzoom=0.65, yzoom=0.6, xpos=10,ypos=500)
+    showif who == "Judge":
+        add "judge_dialogue_box" at Transform(xzoom=0.65, yzoom=0.6, xpos=90, ypos=550)
+    showif who is None:
+        add "narration_box" at Transform(xzoom=0.48, yzoom=0.35,xpos=500, ypos=700)
 
     window:
         id "window"
+        background None
 
-        if who is not None:
+       #if who is not None:
 
-            window:
-                id "namebox"
-                style "namebox"
-                text who id "who"
+           #window:
+           #    id "namebox"
+           #    style "namebox"
+           #    text who id "who"
 
-        text what id "what"
+        text what id "what":
+            xalign 0.56
+            ypos -10
+            xsize 930
 
 
     ## If there's a side image, display it above the text. Do not display on the
     ## phone variant - there's no room.
     if not renpy.variant("small"):
-        add SideImage() xalign 1.0 yalign 1.0
+        add SideImage() xalign 0.15 yalign 0.87
 
 
 ## Make the namebox available for styling through the Character object.

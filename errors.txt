@@ -2,11 +2,9 @@
 errors listed below, and try again.
 
 
-The label interview_loop is defined twice, at File "game/script.rpy", line 368:
-label interview_loop:
-and File "game/script.rpy", line 375:
-label interview_loop:
-
+File "game/screens.rpy", line 121: the ypos keyword argument was not given a value.
+    ypos 
+         ^
 
 Ren'Py Version: Ren'Py 8.3.3.24111502
-Fri Mar 21 23:32:09 2025
+Sun Mar 23 12:14:53 2025

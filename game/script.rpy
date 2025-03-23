@@ -1,13 +1,26 @@
-﻿define l = Character("Lex Machina")
-define s = Character(name=("Steve"), image="steve")
-define j = Character("Judge")
+﻿define l = Character(name=("Lex Machina"), image="lex", dynamic=False)
+define s = Character(name=("Steve"), image="steve", dynamic=False)
+define j = Character(name=("Judge"), image="navya", dynamic=False)
 
-default player_fname = "" 
+default player_fname = ""
 default player_lname = ""
 default player_prefix = ""
 default reminder_pressed = False
 default answered_first_question = False
 default switch_cases = False
+default tutorial_skipped = False  # Fixed with "default"
+default context_history = []
+default unintelligible_count = 0
+default mentioned_truths = set()
+default qualification_score = 0
+default voir_dire_question_count = 0 
+default first_question_generated = False
+default voir_dire_retries = 0
+default ai_question = ""
+default user_answer = ""
+$ persistent.case_choice = None
+$ persistent.specialty = None
+
 
 label start:
     scene bg spec
@@ -100,38 +113,34 @@ label setupScene1:
             #     environment_sprites[-1].y = 500
         
     # scene scene-1-bg at half_size - sets background image
-
-    $ persistent.case_choice = None
-    $ persistent.specialty = None
-    $ tutorial_skipped = False
-    $ context_history = []
-    $ unintelligible_count = 0
-    $ mentioned_truths = set()  
-    $ qualification_score = 0
-    $ qualification_question_number = 0 
-
-    show steve_normal
+    
+    show steve normal2
     s "Welcome to the courtroom. My name is Steve, and I'll be guiding you through your preparation before you deliver expert testimony!"
-    s "Would you like me to go through the tutorial? Or should we get straight to case selection?"
-    hide steve_normal2
+    s "Would you like me to go through the tutorial? Or should we get straight to selecting your preferences?"
+    hide steve normal2
 
     menu:
-        s "Would you like me to go through the tutorial? Or should we get straight to case selection?"
-        "Let's do the tutorial first.":
+        "Would you like to do the tutorial, or skip to selecting your preferences?"
+        "Let's do the tutorial first":
+            $ tutorial_skipped = False
             jump tutorial_start
-        "Let's get straight to case selection!":
+        "Let's get straight to selection":
             $ tutorial_skipped = True
             jump case_selection_menu
 
 label tutorial_start:
-    show steve_normal
+    hide steve normal2
+    show steve normal
     s "Don't worry, this is not a real court, and there currently are no stakes involved. It is simply a training simulation intended to help you practice!"
-    show steve_normal2
+    hide steve normal1
+    show steve normal2
     s "Let's start by selecting your case. Each one will present different forensic challenges, so read through the case details carefully before making your choice."
     jump case_selection_menu
+    hide steve normal2
 
 label case_selection_menu:
     scene bg spec
+    hide screen return_to_case_selection
     menu:
         "Case A: The Death of Ana Konzaki":
             call screen case_a_screen
@@ -142,76 +151,81 @@ label case_selection_menu:
 
 label tutorial_specialty:
     scene bg spec
-    show steve_happy
+    show steve happy
     s "Perfect! Now, let's choose your forensic specialty."
-    hide steve_happy
-    show steve_normal2
+    hide steve happy
+    show steve normal2
     s "As an expert witness, your role is to analyze and present evidence within the scope of your expertise. Your duty to the court is to present objective information that will help the triers of fact make a decision."
-    hide steve_normal2
-    show steve_paper
+    hide steve normal2
+    show steve paper
     s "The specialty you select will determine the area of expertise and the aspects of the case that you will have to testify for. Please review your options carefully!"
+    hide steve paper
     jump specialty_menu
 
 label specialty_menu:
     scene bg spec
     $ chosen_specialty = None
+    show screen return_to_case_selection  # Keep screen visible alongside menu
+
     menu:
         "Anthropology":
             $ chosen_specialty = "Anthropology"
+            hide screen return_to_case_selection
             jump specialty_exploration
         "Biology":
             $ chosen_specialty = "Biology"
+            hide screen return_to_case_selection
             jump specialty_exploration
         "Chemistry":
             $ chosen_specialty = "Chemistry"
+            hide screen return_to_case_selection
             jump specialty_exploration
         "Psychology":
             $ chosen_specialty = "Psychology"
+            hide screen return_to_case_selection
             jump specialty_exploration
         "Identification":
             $ chosen_specialty = "Identification"
+            hide screen return_to_case_selection
             jump specialty_exploration
-        "Switch cases":
-            $ switch_cases = True
-            jump case_selection_menu
-
+      
 label specialty_exploration:
     $ case_details = cases[persistent.case_choice]
     call screen specialty_exploration_screen(chosen_specialty)
 
 label tutorial_lex_diff:
     scene bg spec
-    show screen inventory_button
-    show steve_happy
+    show steve happy
     show screen darken_background
+    show screen inventory_button
     #### Add arrow ###
     s "Great choice! On the top left corner, you'll see the evidence button. Click this button if you want to refresh your memory about the aspects of the case you are testifying for!"
     ## open the inventory to show them what the info button even looks like + arrow ###
     s "If you want to read the item description, click the info button on the item."
     hide screen darken_background
     s "Now, there's just one more thing before you step into court."
-    hide steve_happy
-    show steve_normal2
+    hide steve happy
+    show steve normal2
     s "Inside the courtroom, you'll be examined by Lex Machina, a mock trial lawyer."
-    hide steve_normal2
-    show steve_normal
+    hide steve normal2
+    show steve normal
     s "Depending on your selection, Lex will take on one of two roles—either as the prosecution or the defense."
-    hide steve_normal
-    show steve_paper
+    hide steve normal
+    show steve paper
     s "If you choose prosecution, Lex will act as the Crown attorney. This is the easier option as you will be providing examination-in-chief." 
     s "As a prosecutor, Lex's goal is to establish the truth and ensure your testimony is clear, credible, and useful to the court. In this difficulty, if you miss something important, Lex may prompt you to clarify or expand on your findings."
-    hide steve_paper
-    show steve_normal2
+    hide steve paper
+    show steve normal2
     s "If you choose defense, Lex will act as the defense attorney. This is the harder option."
-    hide steve_normal2
-    show steve_normal
+    hide steve normal2
+    show steve normal
     s "A defense lawyer's priority is to advocate for their client, the accused, within the bounds of the law to test the strength of the crown's case. They may challenge you and your findings, perhaps even working to discredit your testimony." 
     s "Expect Lex to challenge you with leading or loaded questions, and other cross-examination techniques designed to undermine your credibility. You'll need to stay composed, justify your conclusions, and ensure your testimony remains admissible."
-    hide steve_normal
-    show steve_happy
+    hide steve normal
+    show steve happy
     s "Choose wisely! Your decision will shape the difficulty of your examination."
-    hide steve_happy
-    show steve_paper
+    hide steve happy
+    show steve paper
     s "Once you've made your selection, the court room awaits! I'll be seeing you after your trial. Good luck!"
     jump difficulty_selection 
 
@@ -229,140 +243,149 @@ label difficulty_selection:
             show screen inventory_button
             jump lex_intro
 
-    label lex_intro:
-        scene bg interview
-        "A figure walks into the room, wearing a crisp suit and carrying a briefcase."
-        show lex normal1
-        l "Hello, my name is Lex Machina. I'll be examining you as an expert witness for this case."
-        l "Could you please state your first and last name for the court?"
-        hide lex normal1
-        hide screen inventory_button
-        hide screen inventory
-        hide screen inspectItem
-        hide screen case_description
-        call screen nameyourself
+label lex_intro:
+    scene bg interview
+    "A figure walks into the room, wearing a crisp suit and carrying a briefcase."
+    show lex normal1
+    l "Hello, my name is Lex Machina. I'll be examining you as an expert witness for this case."
+    l "Could you please state your first and last name for the court?"
+    hide lex normal1
+    hide screen inventory_button
+    hide screen inventory
+    hide screen inspectItem
+    hide screen case_description
+    call screen nameyourself
+   
+label lex_intro2:
+    show screen inventory_button
+    show lex normal1
+    l "Thank you, [player_prefix] [player_lname]." 
+    l "Before we start, let me introduce you to the Judge presiding over this case, Justice Mathur."
+    hide lex normal1
+    show navya normal1
+    j "Nice to meet you, [player_prefix] [player_lname]! Since this is not a real case, I will not be making any verdicts today, but I will be evaluating your testimony with Lex."
+    hide navya normal1
+    show navya normal2
+    j "In a real courtroom the lawyers would conduct a voir dire before allowing an expert to testify This is where they ask you questions to determine whether you truly have the knowledge, skills, and experience to be considered an expert in your field."
+    hide navya normal2
+    show navya normal1
+    j "A voir dire can be quite detailed, so for this training, we'll go through a shorter version. Lex will ask a few questions to establish your expertise; consider it a warm-up before taking the stand. Answer honestly and clearly, just as you would in a real court!"
+    hide navya normal1
+    show lex normal1
+    l "I believe you've chosen to testify as an expert for [persistent.case_choice] in [persistent.specialty]. Very well, let's proceed."
+    $ case_details = cases[persistent.case_choice]
+    $ qualification_score = 0
+    $ voir_dire_question_count = 0
+    $ voir_dire_mentioned = set()
+    $ unintelligible_count = 0
+    jump generate_voir_dire_question
 
-    label lex_intro2:
-        show screen inventory_button
-        show lex normal1
-        l "Thank you, [player_prefix] [player_lname]." 
-        l "Before we start, let me introduce you to the Judge presiding over this case, Justice Mathur."
-        hide lex normal1
-        show navya normal1
-        j "Nice to meet you, [player_prefix] [player_lname]! Since this is not a real case, I will not be making any verdicts today, but I will be evaluating your testimony with Lex."
-        hide navya normal1
-        show navya normal2
-        j "In a real courtroom, before you can testify as an expert witness, the lawyers would conduct a process called voir dire. This is where they ask you questions to determine whether you truly have the knowledge, skills, and experience to be considered an expert in your field."
-        hide navya normal2
-        show navya normal1
-        j "Of course, a full voir dire can be quite detailed, but for the sake of this training, we'll go through a shorter version. Lex will ask you a few questions to establish your expertise. Consider it as a warm-up before you take the stand. Answer honestly and clearly, just as you would in a real court."
-        hide navya normal1
-        show lex normal1
-        l "I believe you've chosen to testify as an expert for [persistent.case_choice] in [persistent.specialty]. Very well, let's proceed."
-    $ case_details = cases[persistent.case_choice] 
-    #$ ai_first_question = generate_response("Generate the first question for the expert witness to establish qualification in their field. Keep it short.", player_prefix, player_fname, player_lname, persistent.specialty, case_details, context_history, unintelligible_count,)
-    jump voir_dire_loop
-
-label voir_dire_loop:
-    if qualification_question_number < len(voir_dire_questions):
-        $ current_question = voir_dire_questions[qualification_question_number]
-        $ ai_first_question = current_question["question"]
-        $ responses = split_string(ai_first_question)
+label generate_voir_dire_question:
+    if voir_dire_question_count < 5:
+        $ categories = ["education", "experience", "skills", "currency", "conflicts"]
+        $ current_category = categories[voir_dire_question_count]
+        
+        # Generate question
+        $ prompt_template = f"Generate a voir dire question about the expert's {current_category} in {persistent.specialty} related to {case_details['case_name']}."
+        $ ai_question = generate_response(prompt_template + " Phrase this as a direct question.", player_prefix, player_fname, player_lname, persistent.specialty, case_details, context_history, unintelligible_count)
+        
+        # Display question
+        $ responses = split_string(ai_question)
         $ say_responses(responses)
-        $ context_history.append(f"AI: {ai_first_question}")
-        show screen reminder
-        $ user_prompt = renpy.input("Your answer here:")
-        $ context_history.append(f"User: {user_prompt}")
-
-        python:
-            ai_check_unintelligible = generate_response(user_prompt, player_prefix, player_fname, player_lname, persistent.specialty, case_details, context_history, unintelligible_count)
-
-            if "This is an unintelligible response." in ai_check_unintelligible:
-                unintelligible_count += 1
-                if unintelligible_count >= 3:
-                    renpy.say(l, "This examination cannot continue due to repeated unintelligible responses.")
-                    renpy.jump("game_over")
-                else:
-                    renpy.say(l, "I'm sorry, but your response was unclear. Please answer the question again.")
-                    renpy.hide("screen reminder")
-                    reminder_pressed = False
-                    renpy.jump("voir_dire_loop")
-
-            else:
-                acceptable_answers = current_question["acceptable_answers"]
-                answer_accepted = False
-                for keyword in acceptable_answers:
-                    if keyword.lower() in user_prompt.lower():
-                        answer_accepted = True
-                        break
-
-                if answer_accepted:
-                    qualification_score += current_question["score"]
-                    renpy.say(l, "Okay, moving on.")
-                else:
-                    renpy.say(l, "Hmm, interesting.")
-
-        hide screen reminder
-        $ reminder_pressed = False
-        $ qualification_question_number += 1
-        jump voir_dire_loop
+        $ context_history.append(f"Voir Dire ({current_category.capitalize()}): {ai_question}")
+        jump ask_voir_dire_question
     else:
-        if qualification_score >= 3:
-            show screen achievement_banner("The court finds you qualified!")
-            $ answered_first_question = True
-            $ mentioned_truths = set()
-            hide lex normal1
-            show navya normal3
-            j "The court finds you qualified to move on with the case. Lex, you may begin examining your witness."
-            hide navya normal3
-            jump generate_first_question
-        else:
-            hide lex normal1
-            show navya normal3
-            j "Based on the voir dire examination, the court finds you unqualified to testify as an expert witness."
-            hide navya normal3
+        jump evaluate_voir_dire_result
+
+label ask_voir_dire_question:
+    show screen reminder
+    $ current_category = ["education", "experience", "skills", "currency", "conflicts"][voir_dire_question_count]
+    $ user_answer = renpy.input("Your answer here:")
+    $ context_history.append(f"User: {user_answer}")
+    hide screen reminder
+
+    $ ai_response = generate_response(user_answer, player_prefix, player_fname, player_lname, persistent.specialty, case_details, context_history, unintelligible_count)
+    $ responses = split_string(ai_response)
+    $ say_responses(responses)
+    $ context_history.append(f"AI: {ai_response}")
+
+    if "unintelligible response" in ai_response.lower():
+        $ unintelligible_count += 1
+        if unintelligible_count >= 3:
+            show navya fail
+            j "This examination cannot continue due to repeated unclear responses."
+            hide navya fail
             jump game_over
+        elif "examination cannot continue" in ai_response.lower():
+            show navya fail
+            j "This examination cannot continue."
+            hide navya fail
+            jump game_over
+        else:
+            show lex concerned
+            l "I'm sorry, could you clarify that response?"
+            hide lex concerned
+            jump ask_voir_dire_question
+    else:
+        $ unintelligible_count = 0
 
-#label first_question:
- #   $ responses = split_string(ai_first_question)
- #   $ say_responses(responses)
- #   $ context_history.append(f"AI: {ai_first_question}")
- #   show screen reminder
- #   $ user_prompt = renpy.input("Your answer here:")
- #   $ context_history.append(f"User: {user_prompt}")
- #   python:
- #       all_truths = create_all_truths_set(persistent.case_choice, persistent.specialty)
-  #  $ ai_response = generate_response(user_prompt, player_prefix, player_fname, player_lname, persistent.specialty, case_details, context_history, unintelligible_count)
-  #  $ responses = split_string(ai_response)
- #   hide screen reminder
- #   $ reminder_pressed = False
- #   $ say_responses(responses)
-  #  $ context_history.append(f"AI: {ai_response}")
+    # Truth base scoring
+    $ required_truths = voir_dire_truths[current_category]
+    $ covered = 0
+    $ feedback = ""
+    
+    python:
+        user_answer_lower = user_answer.lower()
+        for truth in required_truths:
+            if truth in user_answer_lower:
+                voir_dire_mentioned.add(truth)
+                covered += 1
 
- #   if "QUALIFICATION: UNQUALIFIED" in ai_response:
- #       jump game_over
- #   elif "QUALIFICATION: QUALIFIED" in ai_response:
-  #      $ mentioned_truths = set()
-  #      $ answered_first_question = True
-  #      python:
-  #          for evidence_point in truth_bases[persistent.case_choice][persistent.specialty]:
-  #              for truth in truth_bases[persistent.case_choice][persistent.specialty][evidence_point]:
-  #                  if truth.lower() in user_prompt.lower():
-   #                     mentioned_truths.add(truth.lower())
-  #      show screen achievement_banner("The court finds you qualified!")
-  #      jump interview_loop
- #   elif "unintelligible response" in ai_response:
- #       $ unintelligible_count += 1
- #       if unintelligible_count >= 3:
- #           jump game_over
- #       else:
- #           jump first_question
- ##   else:
-  #      "An unexpected error occurred. Please restart the game."
-  #      return
+    if covered >= 2:
+        $ qualification_score += 1
+        $ feedback = "Thank you, that establishes your credentials clearly. Moving forward."
+    elif covered == 1:
+        $ qualification_score += 0.5
+        $ feedback = "Hmm... While partially adequate, I may have you elaborate further later."
+    else:
+        $ feedback = "Interesting perspective. The court will note that response."
+
+    $ voir_dire_question_count += 1
+    l "[feedback]"
+
+    if voir_dire_question_count < 5:
+        jump generate_voir_dire_question
+    else:
+        jump evaluate_voir_dire_result
+
+label evaluate_voir_dire_result:
+    if qualification_score >= 3:
+        show screen achievement_banner("You've been qualified as an expert witness!")
+        show lex normal1 at left
+        show navya normal 1 at right
+        l "Your Honour, I have no further qualification questions for the witness."
+        hide navya normal1
+        show navya pass at right
+        j "The court finds [player_prefix] [player_lname] qualified to testify for this case. Lex, you may begin examining your witness."
+        hide lex normal1
+        hide navya pass
+        jump generate_first_question
+    else:
+        show screen achievement_banner("You are not qualified as an expert witness. Try again.")
+        show lex normal1 at left
+        show navya normal1 at right
+        l "Your Honour, I have no further questions for the witness."
+        hide navya normal1
+        show navya fail at right
+        j "Based on the voir dire examination, the court finds you unqualified to testify as an expert witness. I recommend working on your qualifications, and trying again."
+        hide navya fail
+        hide lex normal1
+        jump game_over
 
 label generate_first_question:
-    $ ai_first_question = generate_response("Generate the first question about the evidence in the case, based on the expert's chosen specialty. Keep it short.", player_prefix, player_fname, player_lname, persistent.specialty, case_details, context_history, unintelligible_count)
+    if not first_question_generated:
+        $ ai_first_question = sanitize_for_renpy(generate_response("Generate the first question about the evidence in the case, based on the expert's chosen specialty.", player_prefix, player_fname, player_lname, persistent.specialty, case_details, context_history, unintelligible_count))
+        $ first_question_generated = True
     jump interview_loop
 
 label interview_loop:
@@ -417,6 +440,7 @@ label interview_loop:
 
 label game_over:
     scene bg gameover
+    hide lex normal1
     "The examination has been terminated because you were deemed unqualified to testify as an expert witness."
     "Please select \"Restart\" to try again."
     ##screen buttons
@@ -441,9 +465,9 @@ label interview_end:
     show lex normal1
     l "Thank you for your time, [player_prefix] [player_lname]."
     hide lex normal1
-    show navya normal3
+    show navya pass
     j "Thank you, Lex. [player_prefix] [player_fname] [player_lname], you may leave the court room. You will receive your evaluation outside with your supervisor."
-    hide navya normal3
+    hide navya pass
     hide lex normal1
     python:
         try:
@@ -476,19 +500,19 @@ label interview_end:
             renpy.store.score = 0
 
     scene bg spec
-    show steve_happy
+    show steve happy
     s "Welcome back, [player_fname]! In just a second, Lex and the Judge will return with any feedback they have for you."
-    hide steve_happy
-    show steve_normal2
+    hide steve happy
+    show steve normal2
     s "After you receive your feedback, I encourage you to testify again for the [unplayed_difficulty] to get the full court room experience."
-    hide steve_normal2
-    show steve_normal
+    hide steve normal2
+    show steve normal
     s "You can also choose a whole new case and specialty and start again! The choice is yours!"
     #ADD FOOTSTEPS SOUND HERE HEHEHE
-    hide steve_normal
-    show steve_happy
+    hide steve normal
+    show steve happy
     s "Oh! Sounds like Lex and the Judge are about to join us. Don't worry, I'm sure you did great!"
-    hide steve_happy
+    hide steve happy
     jump evaluation_sec
 
 label evaluation_sec:

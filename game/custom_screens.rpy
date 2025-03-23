@@ -30,7 +30,7 @@ screen reminder:
             auto "question_%s" at Transform(zoom=0.3)
             action ToggleVariable("reminder_pressed")
 
-    $ reminder_text = responses[-1] if answered_first_question else split_string(ai_first_question)[-1]
+    $ reminder_text = responses[-1] if answered_first_question else (split_string(ai_question)[-1] if 'ai_question' in globals() else "Begin your testimony")
     
     showif reminder_pressed:
         add "reminder pop up" at Transform(xalign=0.5, yalign=0, zoom=0.9, xzoom=0.86, yzoom=0.8)
@@ -115,11 +115,9 @@ screen nameyourself():
     hbox:
         xalign 0.6
         yalign 0.7
-        textbutton "Done":
+        button:
             style "selection_button"
-            text_color "#ffffff"
-            # background "#4C4C4C"
-            # hover_background "#363737"
+            text "Done" style "selection_button_text"
             action Jump("lex_intro2")
             sensitive (player_fname.strip() and player_lname.strip() and player_prefix.strip())
 
@@ -145,14 +143,14 @@ screen case_a_screen:
             # hover_background "#363737"
             style "selection_button"
             action [Jump("case_selection_menu"), SetVariable("persistent.case_choice", None)]
-            text "Return to Case Selection"
+            text "Return to Case Selection" style "selection_button_text"
 
         button:
             # background "#4C4C4C"
             # hover_background "#363737"
             style "selection_button"
             action [SetVariable("persistent.case_choice", "Case A"), If(tutorial_skipped or switch_cases, Jump("specialty_menu"), Jump("tutorial_specialty"))]
-            text "Choose Case A"
+            text "Choose Case A" style "selection_button_text"
 
 screen case_b_screen:
     add "frame" at Transform(zoom=0.85, xalign=0.5, yalign=0.3)
@@ -176,14 +174,27 @@ screen case_b_screen:
             # hover_background "#363737"
             style "selection_button"
             action [Jump("case_selection_menu"), SetVariable("persistent.case_choice", None)]
-            text "Return to Case Selection"
+            text "Return to Case Selection" style "selection_button_text"
 
         button:
             # background "#4C4C4C"
             # hover_background "#363737"
             style "selection_button"
             action [SetVariable("persistent.case_choice", "Case B"), If(tutorial_skipped or switch_cases, Jump("specialty_menu"), Jump("tutorial_specialty"))]
-            text "Choose Case B"
+            text "Choose Case B" style "selection_button_text"
+
+screen return_to_case_selection():
+    hbox:
+        xpos 0.5
+        ypos 0.8
+        xanchor 0.5
+        yanchor 0.5
+
+        button:
+            style "selection_button"
+            text "Return to Case Selection" style "selection_button_text"
+            action [SetVariable("switch_cases", True), Jump("case_selection_menu")]
+
 
 screen specialty_exploration_screen(specialty): 
     $ case_details = cases[persistent.case_choice]
@@ -215,14 +226,14 @@ screen specialty_exploration_screen(specialty):
             # hover_background "#363737"
             style "selection_button"
             action Jump("specialty_menu")
-            text "Return to Specialty Selection"
+            text "Return to Specialty Selection" style "selection_button_text"
 
         button:
             # background "#4C4C4C"
             # hover_background "#363737"
             style "selection_button"
             action [SetVariable("persistent.specialty", specialty), Function(enable_evidence), If(tutorial_skipped == False, Jump("tutorial_lex_diff"), Jump("difficulty_selection"))]
-            text "Choose this Specialty"
+            text "Choose this Specialty" style "selection_button_text"
 
 screen evaluation_screen:
     modal True  
@@ -258,9 +269,9 @@ screen evaluation_screen:
                 size 24
                 xalign 0.5
             
-        textbutton "Done":
-            background "#4C4C4C"
-            hover_background "#363737"
+        button:
+            style "selection_button"
+            text "Done" style "selection_button_text"
             xalign 0.9
             yalign 0.9
             action Jump("ending_0")
@@ -274,10 +285,9 @@ screen credits_lol:
         yalign 0.7
         #spacing 100
         button:
-            background "#4C4C4C"
-            hover_background "#363737"
+            style "selection_button"
             action [SetVariable("answered_first_question", False), Jump("start")]
-            text "Try again"
+            text "Try again" style "selection_button_text"
 #           button:
 #               background "#4C4C4C"
 #               hover_background "#363737"
@@ -293,6 +303,11 @@ style selection_button:
     hover_background "#5092a6"
     insensitive_background "#2a2a2a"
     padding (40, 12)
+
+style selection_button_text:
+    color "#050101"  
+    hover_color "#ffffff"  
+    insensitive_color "#8888887f" 
 
 screen achievement_banner(text):
     zorder 100
