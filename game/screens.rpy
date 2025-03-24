@@ -118,7 +118,7 @@ screen say(who, what):
 
         text what id "what":
             xalign 0.56
-            ypos -10
+            ypos -20
             xsize 930
 
 

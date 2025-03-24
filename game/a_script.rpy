@@ -155,6 +155,80 @@
         "conflicts": ["bias", "financial interest", "prior relationship", "advocacy", "objectivity"]
     }
 
+    voir_dire_feedback = {
+        "education": {
+            "good": [
+                "Thank you. Your educational credentials appear relevant.",
+                "Thank you. You appear qualified in your field.",
+            ],
+            "partial": [
+                "We may need supplemental educational details later, but this is still acceptable.",
+                "Your experience partially demonstrates expertise. but I may ask for clarification for some of these details later.",
+            ],
+            "poor": [
+                "We'll need to revisit your education credentials.",
+                "The court may question this educational background.",
+                "Hmm, this seems insufficient. The court should consider this."
+            ]
+        },
+        "experience": {
+            "good": [
+                "Your professional history demonstrates relevant expertise.",
+                "Thank you. Your projects establish practical knowledge."
+            ],
+            "partial": [
+                "Limited but applicable experience noted.",
+                "We may need to expand on that experience later.",
+            ],
+            "poor": [
+                "We'll need to clarify your practical experience.",
+                "The court may require more specific professional experience."
+            ]
+        },
+        "skills": {
+            "good": [
+                "Your technical skills appear appropriate and valid.",
+                "Your methodology seems scientifically valid."
+            ],
+            "partial": [
+                "Some relevant skills demonstrated.",
+                "We may need to revisit methodology later."
+            ],
+            "poor": [
+                "We'll need to verify your technical capacity.",
+                "This is an insufficient demonstration of required skills."
+            ]
+        },
+        "currency": {
+            "good": [
+                "Your continuing education meets standards.",
+                "That recertification demonstrates current knowledge.",
+                "Recent conferences suggest updated expertise."
+            ],
+            "partial": [
+                "You've provided ome evidence of current practice.",
+                "Hmm, that is acceptable for the time being. We may need more recency details later."
+            ],
+            "poor": [
+                "Hmm, the court may question the recency of your knowledge.",
+                "Sorry, that is insufficient evidence of current knowledge."
+            ]
+        },
+        "conflicts": {
+            "good": [
+                "No apparent conflicts of interest noted.",
+                "Thank you, your response demonstrates proper objectivity.",
+            ],
+            "partial": [
+                "Interesting. Some potential conflicts may need monitoring."
+            ],
+            "poor": [
+                "I'm sorry, that is a significant conflict of interest, and should be monitored.",
+                "Your objectivity is severely limited in this case."
+            ]
+        }
+    }
+
     cases = {
         "Case A": {
             "case_name": "Case A: The Death of Ana Konzaki",

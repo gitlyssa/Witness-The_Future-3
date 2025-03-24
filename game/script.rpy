@@ -278,6 +278,7 @@ label lex_intro2:
     $ voir_dire_question_count = 0
     $ voir_dire_mentioned = set()
     $ unintelligible_count = 0
+    $ current_question = ""
     jump generate_voir_dire_question
 
 label generate_voir_dire_question:
@@ -285,11 +286,15 @@ label generate_voir_dire_question:
         $ categories = ["education", "experience", "skills", "currency", "conflicts"]
         $ current_category = categories[voir_dire_question_count]
         
-        # Generate question
-        $ prompt_template = f"Generate a voir dire question about the expert's {current_category} in {persistent.specialty} related to {case_details['case_name']}."
-        $ ai_question = generate_response(prompt_template + " Phrase this as a direct question.", player_prefix, player_fname, player_lname, persistent.specialty, case_details, context_history, unintelligible_count)
+        # Generate strict qualification question
+        $ prompt_template = f"""Generate a voir dire question specifically about the expert's {current_category} qualifications for {case_details['case_name']}.
+        - Focus only on {current_category} requirements
+        - Do not mention evidence analysis
+        - Phrase as a direct question to establish qualifications"""
         
-        # Display question
+        $ ai_question = generate_response(prompt_template, player_prefix, player_fname, player_lname, persistent.specialty, case_details, context_history, unintelligible_count)
+        $ current_question = ai_question
+        
         $ responses = split_string(ai_question)
         $ say_responses(responses)
         $ context_history.append(f"Voir Dire ({current_category.capitalize()}): {ai_question}")
@@ -299,12 +304,20 @@ label generate_voir_dire_question:
 
 label ask_voir_dire_question:
     show screen reminder
-    $ current_category = ["education", "experience", "skills", "currency", "conflicts"][voir_dire_question_count]
-    $ user_answer = renpy.input("Your answer here:")
+    $ user_answer = renpy.input("Your response here:")
     $ context_history.append(f"User: {user_answer}")
     hide screen reminder
 
-    $ ai_response = generate_response(user_answer, player_prefix, player_fname, player_lname, persistent.specialty, case_details, context_history, unintelligible_count)
+    $ ai_response = generate_response(
+        f"""Analyze this voir dire response about {current_category}:
+        - Focus only on qualification requirements for a voir dire
+        - Only mention evidence analysis if relevant to the methodology or education
+        - If unclear, say 'This is an unintelligible response'
+        - Provide a short evaluation of whether the response is adequate or not, based on whether the user seems qualified or not.
+        Question: {current_question}
+        Response: {user_answer}""",
+        player_prefix, player_fname, player_lname, persistent.specialty, case_details, context_history, unintelligible_count
+    )
     $ responses = split_string(ai_response)
     $ say_responses(responses)
     $ context_history.append(f"AI: {ai_response}")
@@ -312,58 +325,45 @@ label ask_voir_dire_question:
     if "unintelligible response" in ai_response.lower():
         $ unintelligible_count += 1
         if unintelligible_count >= 3:
+            hide side lex normal1
             show navya fail
             j "This examination cannot continue due to repeated unclear responses."
             hide navya fail
             jump game_over
-        elif "examination cannot continue" in ai_response.lower():
-            show navya fail
-            j "This examination cannot continue."
-            hide navya fail
-            jump game_over
-        else:
-            show lex concerned
-            l "I'm sorry, could you clarify that response?"
-            hide lex concerned
-            jump ask_voir_dire_question
-    else:
-        $ unintelligible_count = 0
+        else: ##make diff?###
+            l "Please clarify your qualifications regarding [current_category]:"
+            l "[current_question]"
+            jump ask_voir_dire_question  
 
-    # Truth base scoring
     $ required_truths = voir_dire_truths[current_category]
     $ covered = 0
-    $ feedback = ""
-    
     python:
         user_answer_lower = user_answer.lower()
         for truth in required_truths:
             if truth in user_answer_lower:
                 voir_dire_mentioned.add(truth)
                 covered += 1
-
-    if covered >= 2:
+   
+    # Deliver procedural feedback
+    if covered >= 1: #if this condition is met award the full point
         $ qualification_score += 1
-        $ feedback = "Thank you, that establishes your credentials clearly. Moving forward."
-    elif covered == 1:
-        $ qualification_score += 0.5
-        $ feedback = "Hmm... While partially adequate, I may have you elaborate further later."
-    else:
-        $ feedback = "Interesting perspective. The court will note that response."
+    #elif covered == 1: #remvoe the partial awarding point
+    #    $ qualification_score += 0.5
+    #$ feedback_pool = voir_dire_feedback[current_category][feedback_tier] 
+    # $ chosen_feedback = renpy.random.choice(feedback_pool) 
+    
+    #l "[chosen_feedback]" 
 
+    # Move to next question AFTER feedback
     $ voir_dire_question_count += 1
-    l "[feedback]"
-
-    if voir_dire_question_count < 5:
-        jump generate_voir_dire_question
-    else:
-        jump evaluate_voir_dire_result
+    jump generate_voir_dire_question
 
 label evaluate_voir_dire_result:
     if qualification_score >= 3:
         show screen achievement_banner("You've been qualified as an expert witness!")
         show lex normal1 at left
-        show navya normal 1 at right
-        l "Your Honour, I have no further qualification questions for the witness."
+        show navya normal1 at right
+        l "Your Honour, I have no further voir dire questions for the witness."
         hide navya normal1
         show navya pass at right
         j "The court finds [player_prefix] [player_lname] qualified to testify for this case. Lex, you may begin examining your witness."

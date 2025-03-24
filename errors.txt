@@ -2,9 +2,9 @@
 errors listed below, and try again.
 
 
-File "game/screens.rpy", line 121: the ypos keyword argument was not given a value.
-    ypos 
-         ^
+File "game/script.rpy", line 350: invalid syntax
+    feedback_tier = poor""
+                         ^
 
 Ren'Py Version: Ren'Py 8.3.3.24111502
-Sun Mar 23 12:14:53 2025
+Mon Mar 24 10:58:11 2025
