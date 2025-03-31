@@ -38,7 +38,7 @@ label start:
     $inventory_SM = SpriteManager(update = inventoryUpdate, event = inventoryEvents) # sprite manager that manages evidence items; triggers function inventoryUpdate 
     $inventory_sprites = [] # holds all evidence sprite objects
     $inventory_items = [] # holds evidence items
-    $inventory_item_names = ["Case_A_Anthropology_1", "Case_A_Anthropology_2", "Case_A_Biology_1", "Case_A_Biology_2", "Case_B_Psychology_1", "Case_A_Chemistry_1", "Case_A_Chemistry_2", "Case_A_Psychology_1", "Case_A_Psychology_2", "Case_A_Identification_1", "Case_A_Identification_2", "Case_B_Anthropology_1", "Case_B_Anthropology_2", "Case_B_Biology_1", "Case_B_Biology_2", "Case_B_Chemistry_1", "Case_B_Chemistry_2", "Case_B_Psychology_1", "Case_B_Psychology_2", "Case_B_Identification_1", "Case_B_Identification_2", "Handprint", "Gin", "Splatter", "Footprint"] # holds names for inspect pop-up text
+    $inventory_item_names = ["Case_A_Anthropology_1", "Case_A_Anthropology_2", "Case_A_Biology_1", "Case_A_Biology_2", "Case_B_Psychology_1", "Case_A_Toxicology_1", "Case_A_Toxicology_2", "Case_A_Psychology_1", "Case_A_Psychology_2", "Case_A_Identification_1", "Case_A_Identification_2", "Case_B_Anthropology_1", "Case_B_Anthropology_2", "Case_B_Biology_1", "Case_B_Biology_2", "Case_B_Chemistry_1", "Case_B_Chemistry_2", "Case_B_Psychology_1", "Case_B_Psychology_2", "Case_B_Identification_1", "Case_B_Identification_2", "Handprint", "Gin", "Splatter", "Footprint"] # holds names for inspect pop-up text
     $inventory_db_enabled = False # determines whether up arrow on evidence hotbar is enabled or not
     $inventory_ub_enabled = False # determines whether down arrow on evidence hotbar is enabled or not
     $inventory_slot_size = (int(215 / 2), int(196 / 2)) # sets slot size for evidence bar
@@ -167,28 +167,51 @@ label specialty_menu:
     $ chosen_specialty = None
     show screen return_to_case_selection  # Keep screen visible alongside menu
 
-    menu:
-        "Anthropology":
-            $ chosen_specialty = "Anthropology"
-            hide screen return_to_case_selection
-            jump specialty_exploration
-        "Biology":
-            $ chosen_specialty = "Biology"
-            hide screen return_to_case_selection
-            jump specialty_exploration
-        "Chemistry":
-            $ chosen_specialty = "Chemistry"
-            hide screen return_to_case_selection
-            jump specialty_exploration
-        "Psychology":
-            $ chosen_specialty = "Psychology"
-            hide screen return_to_case_selection
-            jump specialty_exploration
-        "Identification":
-            $ chosen_specialty = "Identification"
-            hide screen return_to_case_selection
-            jump specialty_exploration
-      
+    if persistent.case_choice == "Case A":
+        menu:
+            "Anthropology":
+                $ chosen_specialty = "Anthropology"
+                hide screen return_to_case_selection
+                jump specialty_exploration
+            "Biology":
+                $ chosen_specialty = "Biology"
+                hide screen return_to_case_selection
+                jump specialty_exploration
+            "Toxicology":
+                $ chosen_specialty = "Toxicology"
+                hide screen return_to_case_selection
+                jump specialty_exploration
+            "Psychology":
+                $ chosen_specialty = "Psychology"
+                hide screen return_to_case_selection
+                jump specialty_exploration
+            "Identification":
+                $ chosen_specialty = "Identification"
+                hide screen return_to_case_selection
+                jump specialty_exploration
+    elif persistent.case_choice == "Case B":
+        menu:
+            "Anthropology":
+                $ chosen_specialty = "Anthropology"
+                hide screen return_to_case_selection
+                jump specialty_exploration
+            "Biology":
+                $ chosen_specialty = "Biology"
+                hide screen return_to_case_selection
+                jump specialty_exploration
+            "Chemistry":
+                $ chosen_specialty = "Chemistry"
+                hide screen return_to_case_selection
+                jump specialty_exploration
+            "Psychology":
+                $ chosen_specialty = "Psychology"
+                hide screen return_to_case_selection
+                jump specialty_exploration
+            "Identification":
+                $ chosen_specialty = "Identification"
+                hide screen return_to_case_selection
+                jump specialty_exploration
+
 label specialty_exploration:
     $ case_details = cases[persistent.case_choice]
     call screen specialty_exploration_screen(chosen_specialty)
@@ -283,78 +306,93 @@ label lex_intro2:
 
 label generate_voir_dire_question:
     if voir_dire_question_count < 5:
-        $ categories = ["education", "experience", "skills", "currency", "conflicts"]
+        $ categories = ["educational experience", "professional experience", "prior testimony", "projects and studies", "conflicts of interest"]
         $ current_category = categories[voir_dire_question_count]
-        
-        # Generate strict qualification question
-        $ prompt_template = f"""Generate a voir dire question specifically about the expert's {current_category} qualifications for {case_details['case_name']}.
-        - Focus only on {current_category} requirements
-        - Do not mention evidence analysis
-        - Phrase as a direct question to establish qualifications"""
-        
+
+        # Generate qualification question tailored for AI assessment
+        $ prompt_template = f"""Generate a voir dire question about the expert's qualifications, specific to {current_category}. Ask the question directly, and expect a concise answer that directly addresses the simple question. Do not instruct the player beyond that.
+        For professional experience, create high-level questions only such as experience teaching, or performing lab work. Remember that the player will respond in a concise manner, so ensure the questions expect concise"""
+
         $ ai_question = generate_response(prompt_template, player_prefix, player_fname, player_lname, persistent.specialty, case_details, context_history, unintelligible_count)
         $ current_question = ai_question
-        
+
         $ responses = split_string(ai_question)
         $ say_responses(responses)
         $ context_history.append(f"Voir Dire ({current_category.capitalize()}): {ai_question}")
+
+        # Showing Current Question on Reminder Screen:
+        $ persistent.reminder_text = current_question  # Set reminder text here
+
         jump ask_voir_dire_question
     else:
         jump evaluate_voir_dire_result
 
 label ask_voir_dire_question:
-    show screen reminder
+    show screen reminder  # Reminder Screen should be defined with a proper label for text
     $ user_answer = renpy.input("Your response here:")
     $ context_history.append(f"User: {user_answer}")
     hide screen reminder
 
-    $ ai_response = generate_response(
-        f"""Analyze this voir dire response about {current_category}:
-        - Focus only on qualification requirements for a voir dire
-        - Only mention evidence analysis if relevant to the methodology or education
-        - If unclear, say 'This is an unintelligible response'
-        - Provide a short evaluation of whether the response is adequate or not, based on whether the user seems qualified or not.
-        Question: {current_question}
-        Response: {user_answer}""",
+    # AI Evaluation - Focus only on the stated category
+    $ ai_evaluation = generate_response(
+        f"""Evaluate the following response to the voir dire question. Question: {current_question}. Response: {user_answer}. The question pertains to the expert's {current_category}.
+        Remember, the player will respond concisely, so please keep the threshold for adequate responses low. Remember, the player will respond concisely, so expect concise answers. DO not expect the player to literally cite their research articles. Topic and content and publishing is good enough. For professional experience, as long as they say any experience in their field, not even relevant to the case, its good enough.
+        If the player says Yes for being asked if they have testified before, thats good enough. If the player says only no for conflict of interest, that is also good enough
+        Analyze the response and respond with ONLY three options:
+        - Respond with ONLY 'Thank you, let's move on' if the response is valuable and answers the question being asked for {current_category}.
+        - Respond with 'Inadequate, please provide more details or relevant qualifications about your {current_category}' and *explicitly state* what details are needed to improve the answer
+        - Respond with ONLY 'Hmm, interesting.' if the player outright denies something or openly says something opposite to what is expected, and clarification is not required (examples are player saying no published works in the field, or never testified before, or no professional experience, or yes to conflicts of interest)
+        Provide questions in this response.
+        Be concise.""",
         player_prefix, player_fname, player_lname, persistent.specialty, case_details, context_history, unintelligible_count
     )
-    $ responses = split_string(ai_response)
+
+    $ responses = split_string(ai_evaluation)
     $ say_responses(responses)
-    $ context_history.append(f"AI: {ai_response}")
+    $ context_history.append(f"AI Evaluation: {ai_evaluation}")
 
-    if "unintelligible response" in ai_response.lower():
-        $ unintelligible_count += 1
-        if unintelligible_count >= 3:
-            hide side lex normal1
-            show navya fail
-            j "This examination cannot continue due to repeated unclear responses."
-            hide navya fail
-            jump game_over
-        else: ##make diff?###
-            l "Please clarify your qualifications regarding [current_category]:"
-            l "[current_question]"
-            jump ask_voir_dire_question  
-
-    $ required_truths = voir_dire_truths[current_category]
-    $ covered = 0
-    python:
-        user_answer_lower = user_answer.lower()
-        for truth in required_truths:
-            if truth in user_answer_lower:
-                voir_dire_mentioned.add(truth)
-                covered += 1
-   
-    # Deliver procedural feedback
-    if covered >= 1: #if this condition is met award the full point
+    if "Thank you, let's move on" in ai_evaluation.lower():
         $ qualification_score += 1
-    #elif covered == 1: #remvoe the partial awarding point
-    #    $ qualification_score += 0.5
-    #$ feedback_pool = voir_dire_feedback[current_category][feedback_tier] 
-    # $ chosen_feedback = renpy.random.choice(feedback_pool) 
-    
-    #l "[chosen_feedback]" 
+        jump next_voir_dire_question
+    elif "inadequate, please provide more details" in ai_evaluation.lower():
 
-    # Move to next question AFTER feedback
+        # Clarification Attempt - Extract from AI response
+        $ clarification_question = extract_clarification_question(ai_evaluation)
+
+        $ persistent.reminder_text = clarification_question  
+        show screen reminder
+        $ user_clarification = renpy.input("Your response here:")
+        $ context_history.append(f"User Clarification: {user_clarification}")
+        hide screen reminder
+
+        # Evaluate Clarification ONLY on the Stated Category
+        $ ai_clarification_evaluation = generate_response(
+            f"""Evaluate the following *clarification* to the voir dire question. Original Question: {current_question}. Original Response: {user_answer}. Clarification Question: {clarification_question}. Clarification Response: {user_clarification}.
+            The question asks if the expert meets requirements:
+
+            Provide an answer telling thr player if their response was sufficient or insufficient and why.""",
+            player_prefix, player_fname, player_lname, persistent.specialty, case_details, context_history, unintelligible_count
+        )
+
+        $ responses = split_string(ai_clarification_evaluation)
+        $ say_responses(responses)
+        $ context_history.append(f"AI Clarification Evaluation: {ai_clarification_evaluation}")
+
+        if "sufficient" in ai_clarification_evaluation.lower():
+            l "Thank you for clarifying."
+            $ qualification_score += 1
+            jump next_voir_dire_question
+        else:
+            l "That is still insufficient, but let's move on."
+            jump next_voir_dire_question
+    elif "Hmm, interesting." in ai_evaluation.lower():
+        jump next_voir_dire_question
+
+    #else:
+      #  l "I'm sorry, there was an error in the ai evaluation, please try again"
+      #  jump next_voir_dire_question
+
+label next_voir_dire_question:
     $ voir_dire_question_count += 1
     jump generate_voir_dire_question
 

@@ -41,7 +41,7 @@
                 f"{difficulty_instructions}"
                 f"keep all responses and questions concise. If necessary to get to a truth base, ask questions that exclude possibilities such as 'What is your opinion on a particular scenario' or 'do you think it is possible to'."
                 f"All sentences in your response should be under {TEXT_LIMIT} characters. Do not include any line breaks in your response. After ending your sentence with punctuation (. ? ! etc.), include a $ after it. Do not substitute punctuation with a $."
-                f"The player has chosen to testify in {case_details['case_name']}. "
+                f"The player has chosen to testify in {case_details['case_name']}. None of the cases are about suicide "
                 f"The key evidence they must discuss, based on their specialty ({specialty}), includes: {case_details['evidence'][specialty]}. "
                 f"Address the player by their name: {player_prefix} {player_fname} {player_lname}. Please use they/them pronouns, unless the player indicates a gendered prefix (Ms./Mr.)"
                 f"Use legal precedents for expert witness testimony in Canada (R. v. Mohan, White Burgess), ensuring testimony has clarity, reliability, accuracy, objectivity, and value to the triers of fact. "
@@ -147,85 +147,48 @@
             print(f"An exception occurred: {e}")
             return False
 
-    voir_dire_truths = {
-        "education": ["degree", "certification", "diploma", "university", "accredited"],
-        "experience": ["years", "projects", "cases", "published", "peer-reviewed"],
-        "skills": ["methodology", "techniques", "proficiency", "equipment", "standards"],
-        "currency": ["continuing education", "conferences", "journals", "training", "licenses"],
-        "conflicts": ["bias", "financial interest", "prior relationship", "advocacy", "objectivity"]
-    }
+    def extract_clarification_question(ai_evaluation):
+        """
+        Extracts the clarification question from the AI's evaluation response.
+
+        Assumes the AI response contains the question within a sentence
+        or paragraph.  This uses a simple regex to find the last question mark
+        and extract the string leading up to it.  This is fragile and depends
+        on the AI following a consistent format.
+
+        If no question mark is found, it returns the entire AI evaluation.
+        """
+        match = re.search(r"([^?]*\?)", ai_evaluation)
+        if match:
+            return match.group(1).strip()  # Return the last question found
+        else:
+            return ai_evaluation.strip()
 
     voir_dire_feedback = {
         "education": {
-            "good": [
-                "Thank you. Your educational credentials appear relevant.",
-                "Thank you. You appear qualified in your field.",
-            ],
-            "partial": [
-                "We may need supplemental educational details later, but this is still acceptable.",
-                "Your experience partially demonstrates expertise. but I may ask for clarification for some of these details later.",
-            ],
-            "poor": [
-                "We'll need to revisit your education credentials.",
-                "The court may question this educational background.",
-                "Hmm, this seems insufficient. The court should consider this."
-            ]
+            "good": "Your educational background is well-suited for this case. Providing details about your degrees and certifications is important.",
+            "clarification": "To strengthen your qualifications, can you specify the degrees or certifications that are most relevant to this case?",
+            "poor": "Your educational background needs further clarification. Focus on relevant degrees, certifications, and accreditations."
         },
         "experience": {
-            "good": [
-                "Your professional history demonstrates relevant expertise.",
-                "Thank you. Your projects establish practical knowledge."
-            ],
-            "partial": [
-                "Limited but applicable experience noted.",
-                "We may need to expand on that experience later.",
-            ],
-            "poor": [
-                "We'll need to clarify your practical experience.",
-                "The court may require more specific professional experience."
-            ]
+            "good": "Your professional experience demonstrates your expertise. Be sure to mention the number of years and specific relevant projects.",
+            "clarification": "Can you elaborate on the specific projects or cases where you applied your expertise in a similar context?",
+            "poor": "Your experience is not clearly established. Highlight the number of years of experience and the types of projects or cases you've worked on."
         },
         "skills": {
-            "good": [
-                "Your technical skills appear appropriate and valid.",
-                "Your methodology seems scientifically valid."
-            ],
-            "partial": [
-                "Some relevant skills demonstrated.",
-                "We may need to revisit methodology later."
-            ],
-            "poor": [
-                "We'll need to verify your technical capacity.",
-                "This is an insufficient demonstration of required skills."
-            ]
+            "good": "Your technical skills appear appropriate. Mentioning specific methodologies and techniques bolsters your qualification.",
+            "clarification": "Could you provide examples of how you've applied specific methodologies or techniques in your field?",
+            "poor": "Your technical skills need more explanation. Be sure to name the methodologies and techniques you're proficient in."
         },
         "currency": {
-            "good": [
-                "Your continuing education meets standards.",
-                "That recertification demonstrates current knowledge.",
-                "Recent conferences suggest updated expertise."
-            ],
-            "partial": [
-                "You've provided ome evidence of current practice.",
-                "Hmm, that is acceptable for the time being. We may need more recency details later."
-            ],
-            "poor": [
-                "Hmm, the court may question the recency of your knowledge.",
-                "Sorry, that is insufficient evidence of current knowledge."
-            ]
+            "good": "Your continuing education is up to par. Continuing education credits, conferences, and journals are great to mention",
+            "clarification": "Can you name any recent conferences or journals you have used to keep your knowledge up to date.",
+            "poor": "Your current knowledge needs updating. Consider conferences, journald and taking credits in continuing education"
         },
         "conflicts": {
-            "good": [
-                "No apparent conflicts of interest noted.",
-                "Thank you, your response demonstrates proper objectivity.",
-            ],
-            "partial": [
-                "Interesting. Some potential conflicts may need monitoring."
-            ],
-            "poor": [
-                "I'm sorry, that is a significant conflict of interest, and should be monitored.",
-                "Your objectivity is severely limited in this case."
-            ]
+            "good": "You have maintained objectivity. Detailing your lack of bias and interests maintains credibility",
+            "clarification": "Be sure to highlight that you have maintained objectivty and have no biases in your expertise",
+            "poor": "Objectivity needs clarification. Emphasize no bias, interests or relationships"
         }
     }
 
@@ -242,8 +205,8 @@
                     "point_1": "DNA analysis on blood stains found on Ana's clothing and nearby surfaces confirmed that Ana's blood was the source of the bloodstains. This helps confirm that the injury occurred in the vicinity of where the blood was found. The analysis also ruled out the presence of any foreign blood from other individuals at the scene, supporting the conclusion that Ana was the primary victim of the attack.",
                     "point_2": "Microscopic examination of the crime scene revealed the presence of scalp tissue and hair fibers near the areas where blood spatter was found. These materials were likely dislodged during the blunt force trauma that Ana sustained. The tissue and hair fibers were transferred to surrounding surfaces, supporting the conclusion that the injury occurred in close proximity to where the biological materials were found."
                 },
-                "Chemistry": {
-                    "point_1": "Postmortem toxicology analysis of Ana Konzaki's blood detected an ethanol concentration of 0.02% BAC, which is consistent with light alcohol consumption. No other intoxicants were detected. While the ethanol level is unlikely to have significantly impaired her motor skills or cognitive function, it could still have had a minor effect on her coordination and judgment at the time of the incident.",
+                "Toxicology": {
+                    "point_1": "Postmortem toxicology analysis of Ana Konzaki's blood detected a blood alcohol concentration of 20mg/100ml of blood. No other intoxicants were detected, and neither were any signs of putrefaction. .",
                     "point_2": "Microscopic analysis of Ana Konzaki's head wound reveals small embedded traces of metal, suggesting the object that caused the injury had a metal striking surface."
                 },
                 "Psychology": {
@@ -353,10 +316,12 @@
                     "The proximity of the biological materials to the blood spatter suggests that the injury happened in the same area"
                 ]
             },
-            "Chemistry": {
+            "Toxicology": {
                 "point_1": [
-                    "ethanol concentration of 0.02% BAC, consistent with light alcohol consumption",
-                    "alcohol level unlikely to impair motor coordination or cognitive abilities, but maybe on judgement"
+                    "Blood alcohol concentration of 20mg/100ml of blood.", 
+                    "No signs of putrefaction were discovered.",
+                    "Found through gas chromatography-mass spectrometry (GC-MS)"
+                    "don't know whether blood alochol indicates amount of drinks entirely, or heavy alcohol consumption from earlier being broken down."
                 ],
                 "point_2": [
                     "Microscopic analysis of head wound revealed embedded traces of metal, suggesting that the object causing the injury had a metal striking surface",
